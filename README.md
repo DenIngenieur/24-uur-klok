@@ -2,6 +2,8 @@
 
 Een bijzondere klok die **tegen de klok in loopt**, **24 uur** toont, en de stand van de zon en maan laat zien – gebaseerd op jouw locatie en de echte sterrenkunde.
 
+Zie het ding in werking: [naar de klok](https://deningenieur.github.io/24-uur-klok/)
+
 ## ✨ Wat maakt deze klok anders?
 
 - **12 uur (middag) staat boven**, middernacht (0 uur) onder
