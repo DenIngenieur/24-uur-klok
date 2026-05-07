@@ -6,6 +6,7 @@
  * - Clean separation between day/night colors and tick marks
  * - Large moon at center
  * - Hands over moon
+ * - Smooth hour tracker dot (matches hour hand color, inside tick ring)
  */
 
 // ========== CONFIGURATION ==========
@@ -17,6 +18,11 @@ const CONFIG = {
     gradientOpacity: 0.75,
     gradientResolution: 720,
     gradientMargin: 15,              // Pixels between gradient edge and tick marks
+    
+    // Hour tracker dot
+    hourTrackerEnabled: true,
+    hourTrackerRadius: 5,            // pixels
+    hourTrackerGlow: true,
     
     // Moon phase configuration
     showMoonPhase: true,
@@ -402,6 +408,28 @@ function drawMarginRing() {
     ctx.fill("evenodd");
 }
 
+function drawHourTrackerDot(decimalHours) {
+    if (!CONFIG.hourTrackerEnabled) return;
+    
+    // Position: just inside the tick ring
+    // Tick ring spans from tickStart to tickEnd
+    const tickStart = gradientRadius + CONFIG.gradientMargin + 2;
+    const dotRadius = tickStart - 4;  // Place dot slightly inward from tick start
+    
+    const angle = getHourAngle(decimalHours);
+    const pos = getPosition(angle, dotRadius);
+    
+    ctx.beginPath();
+    ctx.arc(pos.x, pos.y, CONFIG.hourTrackerRadius, 0, 2 * Math.PI);
+    ctx.fillStyle = CONFIG.colors.hourHand;  // Match hour hand color
+    if (CONFIG.hourTrackerGlow) {
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = CONFIG.colors.hourHand;
+    }
+    ctx.fill();
+    ctx.shadowBlur = 0;
+}
+
 function drawHand(angleDegrees, lengthRatio, width, color) {
     const pos = getPosition(angleDegrees, clockRadius * lengthRatio);
     ctx.beginPath();
@@ -584,6 +612,9 @@ function renderClock() {
     drawHand(hourAngle, 0.38, CONFIG.handWidths.hour, CONFIG.colors.hourHand);
     drawHand(minuteAngle, 0.58, CONFIG.handWidths.minute, CONFIG.colors.minuteHand);
     drawHand(secondAngle, 0.72, CONFIG.handWidths.second, CONFIG.colors.secondHand);
+    
+    // Draw hour tracker dot AFTER hands so it sits on top
+    drawHourTrackerDot(decimalHours);
     
     // Tiny center pivot over everything
     ctx.beginPath();
