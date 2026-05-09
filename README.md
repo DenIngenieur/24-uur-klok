@@ -78,8 +78,9 @@ showEveryNthMinute: 5,         // minuutgetallen: elke 5 minuten
 gradientOpacity: 0.85,         // helderheid van het dag/nacht-verloop
 hourTrackerEnabled: true,      // uurvolger aan/uit
 
-Het aantal wigjes (720, ofwel 0,5° per stap) is vast ingesteld in de GradientGenerator-klasse en kan daar worden aangepast.
-
+Het aantal wigjes (720, ofwel 0,5° per stap) is vast ingesteld 
+in de GradientGenerator-klasse en kan daar worden aangepast.
+```
 
 # 🕰️ Holocene Clock – 24h counterclockwise, with sun, moon and 10,000 years of history
 
@@ -157,5 +158,6 @@ showEveryNthMinute: 5,         // show minute numbers every 5 min
 gradientOpacity: 0.85,         // opacity of the day/night gradient
 hourTrackerEnabled: true,      // toggle hour tracker dot
 
-The number of wedges (720, or 0.5° per step) is hardcoded in the GradientGenerator class and can be adjusted there.
-
+The number of wedges (720, or 0.5° per step) is hardcoded in 
+the GradientGenerator class and can be adjusted there.
+```
