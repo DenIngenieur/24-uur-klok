@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Scientific Moon Phase Visualiser</title>
+    <style>
+        body { background: #05070a; color: #e0e0e0; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        canvas { background: radial-gradient(circle, #1a1a1a 0%, #000 70%); border-radius: 50%; box-shadow: 0 0 50px rgba(255, 255, 255, 0.05); margin-bottom: 30px; }
+        .controls { background: #161b22; padding: 25px; border-radius: 16px; width: 320px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-size: 12px; color: #8b949e; text-transform: uppercase; letter-spacing: 1px; }
+        input[type="range"] { width: 100%; cursor: pointer; accent-color: #f1c40f; }
+        span { float: right; color: #f1c40f; font-weight: bold; }
+        .info { margin-top: 10px; font-size: 11px; color: #58a6ff; text-align: center; font-style: italic; }
+    </style>
+</head>
+<body>
+
+    <canvas id="moonCanvas" width="320" height="320"></canvas>
+
+    <div class="controls">
+        <div class="group">
+            <label>Illumination <span id="pVal">60%</span></label>
+            <input type="range" id="pSlider" min="0" max="100" value="60">
+        </div>
+        
+        <div class="group">
+            <label>Latitude <span id="lVal">50°</span></label>
+            <input type="range" id="lSlider" min="-90" max="90" value="50">
+        </div>
+        <div class="info">Simulating transit orientation (Moon high in the sky)</div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('moonCanvas');
+        const ctx = canvas.getContext('2d');
+        const pSlider = document.getElementById('pSlider');
+        const lSlider = document.getElementById('lSlider');
+
+        function draw() {
+            const pct = pSlider.value;
+            const lat = lSlider.value;
+            const radius = 130;
+            
+            document.getElementById('pVal').innerText = pct + '%';
+            document.getElementById('lVal').innerText = lat + '°';
+
+            ctx.clearRect(0, 0, 320, 320);
+            ctx.save();
+            ctx.translate(160, 160);
+
+            // 1. CALCULATE TILT (PARALLACTIC ANGLE APPROXIMATION)
+            // At 0 lat, it's horizontal. At 90 lat, it's vertical.
+            // We flip the rotation for negative latitudes to account for looking North.
+            let rotation = (lat * Math.PI / 180);
+            ctx.rotate(rotation);
+
+            // 2. DRAW DARK BASE
+            ctx.beginPath();
+            ctx.arc(0, 0, radius, 0, Math.PI * 2);
+            ctx.fillStyle = "#161b22";
+            ctx.fill();
+
+            // 3. DRAW LIGHT BASE
+            // Standard "Waxing" starts with the bottom lit (horizontal smile)
+            ctx.beginPath();
+            ctx.arc(0, 0, radius, 0, Math.PI, false); 
+            ctx.fillStyle = "#f1c40f";
+            ctx.fill();
+
+            // 4. DRAW VARIABLE ELLIPSE (ILLUMINATION MASK)
+            // This is the core formula to morph the "thickness" of the light
+            let wFactor = (pct / 50) - 1;
+            let ellipseHeight = Math.abs(radius * wFactor);
+
+            ctx.beginPath();
+            // We morph the vertical (Y) radius of the ellipse to change the shadow curve
+            ctx.ellipse(0, 0, radius, ellipseHeight, 0, 0, Math.PI * 2);
+            
+            // If < 50%, ellipse is dark (crescent); if > 50%, ellipse is light (gibbous)
+            ctx.fillStyle = pct < 50 ? "#161b22" : "#f1c40f";
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        pSlider.oninput = lSlider.oninput = draw;
+        draw();
+    </script>
+</body>
+</html>
+

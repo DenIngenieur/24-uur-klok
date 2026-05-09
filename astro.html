@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sunrise / Sunset – NOAA Algorithm</title>
+    <style>
+        body {
+            background: #0a0e1a; color: #e0e0e0; font-family: 'Segoe UI', monospace;
+            max-width: 800px; margin: 2rem auto; padding: 1rem;
+        }
+        .controls { background: #1a1e2e; padding: 1rem; border-radius: 12px; margin-bottom: 2rem; display: flex; gap: 1rem; flex-wrap: wrap; }
+        input, button { padding: 0.4rem; background: #2a2e3e; border: none; color: white; border-radius: 6px; }
+        button { background: #4a6e8c; cursor: pointer; }
+        .results { background: #111625; padding: 1rem; border-radius: 12px; }
+        table th, table td { text-align: left; padding: 0.5rem; }
+        .good { color: #88ffaa; }
+    </style>
+</head>
+<body>
+    <h2>🌞 Sunrise / Sunset</h2>
+    <div class="controls">
+        <label>Date: <input type="date" id="date" value="2026-05-08"></label>
+        <label>Latitude: <input type="number" id="lat" value="50.8" step="any"></label>
+        <label>Longitude: <input type="number" id="lon" value="4.35" step="any"></label>
+        <button id="compute">Compute</button>
+    </div>
+    <div class="results" id="results"></div>
+
+    <script src="astro.js"></script>
+    <script>
+        document.getElementById('compute').addEventListener('click', () => {
+            const dateStr = document.getElementById('date').value;
+            const lat = parseFloat(document.getElementById('lat').value);
+            const lon = parseFloat(document.getElementById('lon').value);
+            const [year, month, day] = dateStr.split('-').map(Number);
+            const localDate = new Date(year, month-1, day);
+            const solar = new SolarDay(localDate, lat, lon);
+
+            const format = (d) => d ? d.toLocaleString() : ' — ';
+            let html = '<table><tr>';
+            html += `<tr><th>Sunrise</th><td class="good">${format(solar.sunrise)}</td><th>Sunset</th><td class="good">${format(solar.sunset)}</td></tr>`;
+            html += `<tr><th>Civil dawn</th><td>${format(solar.civilDawn)}</td><th>Civil dusk</th><td>${format(solar.civilDusk)}</td></tr>`;
+            html += `<tr><th>Nautical dawn</th><td>${format(solar.nauticalDawn)}</td><th>Nautical dusk</th><td>${format(solar.nauticalDusk)}</td></tr>`;
+            html += `<tr><th>Astro dawn</th><td>${format(solar.astronomicalDawn)}</td><th>Astro dusk</th><td>${format(solar.astronomicalDusk)}</td></tr>`;
+            html += `<tr><th>Polar day</th><td>${solar.isPolarDay}</td><th>Polar night</th><td>${solar.isPolarNight}</td></tr>`;
+            html += '</table>';
+            document.getElementById('results').innerHTML = html;
+        });
+        // Auto-run
+        document.getElementById('compute').click();
+    </script>
+</body>
+</html>

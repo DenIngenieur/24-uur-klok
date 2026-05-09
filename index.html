@@ -10,10 +10,14 @@
     <div class="clock-container">
         <canvas id="clockCanvas" width="500" height="500"></canvas>
         <div class="holocene-timestamp" id="timestamp">HE 12000/00/00 00:00:00</div>
+        <div class="holocene-timestamp" id="moonPhase">🌑 New Moon</div>
         <div class="clock-status" id="clockStatus">
             <span id="statusMessage">Loading clock...</span>
         </div>
     </div>
+    
+    <script src="moonphase.js"></script>
+    <script src="astro.js"></script>
     <script src="clock.js"></script>
 </body>
 </html>
