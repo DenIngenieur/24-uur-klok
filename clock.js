@@ -53,7 +53,6 @@ const CONFIG = {
     handLengths: { hour: 0.38, minute: 0.58, second: 0.72 },
     handWidths: { hour: 6, minute: 4, second: 2 },
     updateInterval: 250,
-    debug: false
 };
 
 // ========== GLOBAL ANGLE UTILITIES ==========

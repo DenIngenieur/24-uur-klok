@@ -38,18 +38,22 @@ Waarom 10.000? Het Holoceen-tijdperk begon ~11.700 jaar geleden — toen de IJst
 ## 🌍 Werkt écht
 
 - Vraagt locatie (toestemming) voor nauwkeurige zonsopkomst, zonsondergang en alle schemeringen
-- Zonder locatie → valt terug op 40° noorderbreedte, 0° oosterlengte
+- Zonder locatie → valt terug op 50.81°N, 3.11°O (Vlaanderen, België)
 - Maanstand wordt berekend op basis van een referentie-nieuwe-maan (17 april 2026)
 - Toont maanfase, symbool en verlichtingspercentage
 
 ## 🧩 Technisch
 
 - Pure HTML/CSS/JS – geen externe bibliotheken
-- **720 wigjes** (hardcoded in `GradientGenerator`, regel `this.gradientSteps = 720`) voor vloeiende kleurovergangen zonder zichtbare randen
+- **720 wigjes** (`gradientSteps: 720` in CONFIG, ofwel 0,5° per stap) voor vloeiende kleurovergangen zonder zichtbare randen
 - **HSL-kleurinterpolatie** tussen ankerpunten (diepste nacht, astronomische/náutische/civiele schemering, zonsopgang/ondergang, middagzon)
 - Maanfase, wijzers, gradiënt en tracker worden getekend op een HTML5-canvas
-- Past zich aan elke schermgrootte aan
+- Past zich aan elke schermgrootte aan (schaalt correct op én neer)
 - Verloop en maanfase worden één keer per dag berekend en gecached
+- Single Time Source architectuur – één `Date` instantie per frame
+- DOM-updates getrotteleerd (tijdstempel per seconde, maanfase per dag)
+- Animatielus pauzeert automatisch wanneer tabblad niet zichtbaar is
+- Canvas state management met `save()`/`restore()` om shadow/style lekkage te voorkomen
 
 ## 📁 Bestanden
 
@@ -68,18 +72,36 @@ Waarom 10.000? Het Holoceen-tijdperk begon ~11.700 jaar geleden — toen de IJst
 
 ## 🎨 Configuratie
 
-Alle instellingen staan bovenin `clock.js`:
+Alle instellingen staan bovenaan `clock.js` in het `CONFIG` object:
 
 ```javascript
-gradientMargin: 25,            // ruimte tussen verloop en streepjes
-moonRadiusRatio: 0.33,         // grootte van de maan t.o.v. wijzerplaat
+size: 500,                     // canvas resolutie (px)
 showEveryNthHour: 1,           // elk uur een getal (0,1,2,...,23)
 showEveryNthMinute: 5,         // minuutgetallen: elke 5 minuten
+gradientMargin: 25,            // ruimte tussen verloop en streepjes
 gradientOpacity: 0.85,         // helderheid van het dag/nacht-verloop
-hourTrackerEnabled: true,      // uurvolger aan/uit
+gradientSteps: 720,            // aantal wigjes (0,5° per stap)
+locationPrecision: 2,          // decimalen voor locatie-cache key
 
-Het aantal wigjes (720, ofwel 0,5° per stap) is vast ingesteld 
-in de GradientGenerator-klasse en kan daar worden aangepast.
+hourTrackerEnabled: true,      // uurvolger aan/uit
+hourTrackerRadius: 5,          // grootte van de tracker-stip
+hourTrackerGlow: true,         // gloed rond de tracker
+
+moonRadiusRatio: 0.33,         // grootte van de maan t.o.v. wijzerplaat
+moonGlowBlur: 6,               // vervaging maangloed
+moonGlowOpacity: 0.15,         // transparantie maangloed
+moonDarkColor: "#1a1d2e",      // kleur onverlichte deel maan
+moonLightColor: "#fff8e0",     // kleur verlichte deel maan
+moonBorderColor: "rgba(255,255,240,0.3)",
+
+updateInterval: 250,           // verversingssnelheid (ms)
+
+deepNight:     { h: 235, s: 70, l: 8  },  // diepste nacht
+astronomical:  { h: 240, s: 55, l: 18 },  // astronomische schemering
+nautical:      { h: 250, s: 40, l: 30 },  // nautische schemering
+civil:         { h: 280, s: 30, l: 45 },  // civiele schemering
+sunrise:       { h: 35,  s: 60, l: 55 },  // zonsopgang/ondergang
+solarNoon:     { h: 50,  s: 40, l: 75 }   // middagzon
 ```
 
 # 🕰️ Holocene Clock – 24h counterclockwise, with sun, moon and 10,000 years of history
@@ -118,18 +140,22 @@ Why 10,000? The Holocene Epoch began ~11,700 years ago — when the Ice Age ende
 ## 🌍 It really works
 
 - Requests location (permission) for accurate sunrise, sunset and all twilights
-- Without location → falls back to 40°N, 0°E
+- Without location → falls back to 50.81°N, 3.11°E (Flanders, Belgium)
 - Moon phase calculated using a reference new moon (17 April 2026)
 - Displays moon phase name, symbol and illumination percentage
 
 ## 🧩 Technical
 
 - Pure HTML/CSS/JS – no external libraries
-- **720 wedges** (hardcoded in `GradientGenerator`, line `this.gradientSteps = 720`) for smooth colour gradients with no visible banding
+- **720 wedges** (`gradientSteps: 720` in CONFIG, or 0.5° per step) for smooth colour gradients with no visible banding
 - **HSL colour interpolation** between anchor points (deepest night, astronomical/nautical/civil twilight, sunrise/sunset, solar noon)
 - Moon phase, hands, gradient and tracker drawn on an HTML5 canvas
-- Adapts to any screen size
+- Adapts to any screen size (scales both up and down correctly)
 - Gradient and moon phase calculated once per day and cached
+- Single Time Source architecture – one `Date` instance per frame
+- DOM updates throttled (timestamp per second, moon phase per day)
+- Animation loop pauses automatically when tab is not visible
+- Canvas state management with `save()`/`restore()` to prevent shadow/style leakage
 
 ## 📁 Files
 
@@ -148,16 +174,35 @@ Why 10,000? The Holocene Epoch began ~11,700 years ago — when the Ice Age ende
 
 ## 🎨 Configuration
 
-All settings are at the top of `clock.js`:
+All settings are at the top of `clock.js` in the `CONFIG` object:
 
 ```javascript
-gradientMargin: 25,            // space between gradient and tick marks
-moonRadiusRatio: 0.33,         // moon size relative to dial
+size: 500,                     // canvas resolution (px)
 showEveryNthHour: 1,           // show every Nth hour number
 showEveryNthMinute: 5,         // show minute numbers every 5 min
+gradientMargin: 25,            // space between gradient and tick marks
 gradientOpacity: 0.85,         // opacity of the day/night gradient
-hourTrackerEnabled: true,      // toggle hour tracker dot
+gradientSteps: 720,            // number of wedges (0.5° per step)
+locationPrecision: 2,          // decimal places for location cache key
 
-The number of wedges (720, or 0.5° per step) is hardcoded in 
-the GradientGenerator class and can be adjusted there.
+hourTrackerEnabled: true,      // toggle hour tracker dot
+hourTrackerRadius: 5,          // size of the tracker dot
+hourTrackerGlow: true,         // glow around tracker dot
+
+moonRadiusRatio: 0.33,         // moon size relative to dial
+moonGlowBlur: 6,               // moon glow blur radius
+moonGlowOpacity: 0.15,         // moon glow transparency
+moonDarkColor: "#1a1d2e",      // unlit portion of moon
+moonLightColor: "#fff8e0",     // lit portion of moon
+moonBorderColor: "rgba(255,255,240,0.3)",
+
+updateInterval: 250,           // refresh rate (ms)
+
+deepNight:     { h: 235, s: 70, l: 8  },  // deepest night
+astronomical:  { h: 240, s: 55, l: 18 },  // astronomical twilight
+nautical:      { h: 250, s: 40, l: 30 },  // nautical twilight
+civil:         { h: 280, s: 30, l: 45 },  // civil twilight
+sunrise:       { h: 35,  s: 60, l: 55 },  // sunrise/sunset
+solarNoon:     { h: 50,  s: 40, l: 75 }   // noon sun
 ```
+
