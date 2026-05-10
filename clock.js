@@ -14,6 +14,7 @@ const CONFIG = {
     showEveryNthMinute: 5,
     gradientMargin: 25,
     gradientOpacity: 0.85,
+    gradientSteps: 720, // 0.5° per step
     
     hourTrackerEnabled: true,
     hourTrackerRadius: 5,
@@ -88,7 +89,7 @@ class TimeSource {
     getCurrentTime() {
         const now = new Date();
         return {
-            hours: now.getHours(),
+            hours: now.getHours()+10,
             minutes: now.getMinutes(),
             seconds: now.getSeconds(),
             decimalHours: now.getHours() + now.getMinutes()/60 + now.getSeconds()/3600,
@@ -385,7 +386,7 @@ class GradientGenerator {
         this.radius = radius;
         this.latitude = latitude;
         this.longitude = longitude;
-        this.gradientSteps = 720; // 0.5° per step
+        this.gradientSteps = this.config.gradientSteps; 
     }
     
     generate() {
@@ -402,7 +403,9 @@ class GradientGenerator {
         const getAngle = (date) => {
             if (!date) return null;
             const hour = date.getHours() + date.getMinutes()/60 + date.getSeconds()/3600;
-            return hourToAngle(hour);
+            let angle = hourToAngle(hour);
+            if (angle > 0) { angle -= 360; }
+            return angle;
         };
         
         const astroDawn = getAngle(solar.astronomicalDawn);
@@ -412,59 +415,59 @@ class GradientGenerator {
         const sunset = getAngle(solar.sunset);
         const civilDusk = getAngle(solar.civilDusk);
         const naupDusk = getAngle(solar.nauticalDusk);
-        const astroDusk = getAngle(solar.astronomicalDusk);
+        const astroDusk = getAngle(solar.astronomicalDusk);       
         
-        let noonAngle = null;
-        if (sunrise !== null && sunset !== null) {
-            const noonTime = new Date((solar.sunrise.getTime() + solar.sunset.getTime()) / 2);
-            noonAngle = getAngle(noonTime);
+        let noon = null;
+        let nadir = null
+        if (sunrise !== null && sunset !== null) {    
+            noon = (sunrise + sunset)/2;
+            nadir = noon - 180;
         }
+        
+        console.log('astroDawn = ' + astroDawn + " solar.astronomicalDawn = " + solar.astronomicalDawn);
+        console.log('naupDawn = ' + naupDawn + " solar.nauticalDawn = " + solar.nauticalDawn);
+        console.log('civilDawn = ' + civilDawn + " solar.civilDawn = " + solar.civilDawn);
+        console.log('sunrise = ' + sunrise + " solar.sunrise = " + solar.sunrise);
+        
+        console.log('noon = ' + noon);
+        
+        console.log('sunset = ' + sunset + " solar.sunset = " + solar.sunset);
+        console.log('civilDusk = ' + civilDusk + " solar.civilDusk = " + solar.civilDusk);
+        console.log('naupDusk = ' + naupDusk + " solar.nauticalDusk = " + solar.nauticalDusk);
+        console.log('astroDusk = ' + astroDusk + " solar.astronomicalDusk = " + solar.astronomicalDusk);
+
+        console.log('nadir = ' + nadir);
+        
+        console.log('===================================================');        
+        console.log();        
+        console.log('===================================================');
+        
         
         const arcs = [];
         const c = this.config.colors;
         
-        // Morning segments
-        if (astroDawn !== null && naupDawn !== null)
-            arcs.push({ start: astroDawn, end: naupDawn, startColor: c.astronomical, endColor: c.nautical });
-        if (naupDawn !== null && civilDawn !== null)
-            arcs.push({ start: naupDawn, end: civilDawn, startColor: c.nautical, endColor: c.civil });
-        if (civilDawn !== null && sunrise !== null)
-            arcs.push({ start: civilDawn, end: sunrise, startColor: c.civil, endColor: c.sunrise });
         
-        // Day segments
-        if (sunrise !== null && noonAngle !== null)
-            arcs.push({ start: sunrise, end: noonAngle, startColor: c.sunrise, endColor: c.solarNoon });
-        if (noonAngle !== null && sunset !== null)
-            arcs.push({ start: noonAngle, end: sunset, startColor: c.solarNoon, endColor: c.sunrise });
-        
-        // Evening segments
+        if (noon !== null && sunset !== null)
+            arcs.push({ start: noon, end: sunset, startColor: c.solarNoon, endColor: c.sunrise });
         if (sunset !== null && civilDusk !== null)
             arcs.push({ start: sunset, end: civilDusk, startColor: c.sunrise, endColor: c.civil });
         if (civilDusk !== null && naupDusk !== null)
             arcs.push({ start: civilDusk, end: naupDusk, startColor: c.civil, endColor: c.nautical });
         if (naupDusk !== null && astroDusk !== null)
-            arcs.push({ start: naupDusk, end: astroDusk, startColor: c.nautical, endColor: c.astronomical });
-        
-        // Night segments
+            arcs.push({ start: naupDusk, end: astroDusk, startColor: c.nautical, endColor: c.astronomical });        
         if (astroDusk !== null && astroDawn !== null) {
-            let nextDawn = astroDawn;
-            while (nextDawn > astroDusk) nextDawn -= 360;
-            const nightMidpoint = (astroDusk + nextDawn) / 2;
-            
-            arcs.push({ 
-                start: astroDusk, 
-                end: nightMidpoint, 
-                startColor: c.astronomical, 
-                endColor: c.deepNight 
-            });
-            arcs.push({ 
-                start: nightMidpoint, 
-                end: nextDawn, 
-                startColor: c.deepNight, 
-                endColor: c.astronomical 
-            });
-        }
-        
+            arcs.push({ start: astroDusk, end: nadir, startColor: c.astronomical, endColor: c.deepNight });
+            arcs.push({ start: nadir, end: astroDawn, startColor: c.deepNight, endColor: c.astronomical });
+        }       
+        if (astroDawn !== null && naupDawn !== null)
+            arcs.push({ start: astroDawn, end: naupDawn, startColor: c.astronomical, endColor: c.nautical });
+        if (naupDawn !== null && civilDawn !== null)
+            arcs.push({ start: naupDawn, end: civilDawn, startColor: c.nautical, endColor: c.civil });
+        if (civilDawn !== null && sunrise !== null)
+            arcs.push({ start: civilDawn, end: sunrise, startColor: c.civil, endColor: c.sunrise });   
+        if (sunrise !== null && noon !== null)
+            arcs.push({ start: sunrise, end: noon, startColor: c.sunrise, endColor: c.solarNoon });
+  
         // Create offscreen canvas
         const off = document.createElement('canvas');
         off.width = this.config.size;
@@ -479,6 +482,9 @@ class GradientGenerator {
         
         // Draw each arc with slight overlap to prevent moiré patterns
         for (const arc of arcs) {
+            // necessary otherwise colours do a wrap around...            
+            if(arc.start < arc.end) { arc.start += 360; }                   
+        
             const totalAngle = Math.abs(arc.end - arc.start);
             const steps = Math.round((totalAngle / 360) * this.gradientSteps);
             
