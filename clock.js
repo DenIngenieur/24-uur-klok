@@ -89,7 +89,7 @@ class TimeSource {
     getCurrentTime() {
         const now = new Date();
         return {
-            hours: now.getHours()+10,
+            hours: now.getHours(),
             minutes: now.getMinutes(),
             seconds: now.getSeconds(),
             decimalHours: now.getHours() + now.getMinutes()/60 + now.getSeconds()/3600,
