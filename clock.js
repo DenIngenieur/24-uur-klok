@@ -15,6 +15,7 @@ const CONFIG = {
     gradientMargin: 25,
     gradientOpacity: 0.85,
     gradientSteps: 720, // 0.5° per step
+    locationPrecision: 2, // decimal places for location cache key
     
     hourTrackerEnabled: true,
     hourTrackerRadius: 5,
@@ -51,7 +52,8 @@ const CONFIG = {
     
     handLengths: { hour: 0.38, minute: 0.58, second: 0.72 },
     handWidths: { hour: 6, minute: 4, second: 2 },
-    updateInterval: 250
+    updateInterval: 250,
+    debug: false
 };
 
 // ========== GLOBAL ANGLE UTILITIES ==========
@@ -89,11 +91,17 @@ class TimeSource {
     getCurrentTime() {
         const now = new Date();
         return {
+            date: now,
+            timestamp: now.getTime(),
+            year: now.getFullYear(),
+            month: now.getMonth(),
+            day: now.getDate(),
             hours: now.getHours(),
             minutes: now.getMinutes(),
             seconds: now.getSeconds(),
             decimalHours: now.getHours() + now.getMinutes()/60 + now.getSeconds()/3600,
-            decimalMinutes: now.getMinutes() + now.getSeconds()/60
+            decimalMinutes: now.getMinutes() + now.getSeconds()/60,
+            dateKey: `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`
         };
     }
 }
@@ -102,16 +110,20 @@ class TimeSource {
 class HoloceneTimestamp {
     constructor() {
         this.element = document.getElementById('timestamp');
+        this.lastSecond = -1;
     }
-    update() {
+    update(timeData) {
         if (!this.element) return;
-        const now = new Date();
-        const year = now.getFullYear() + 10000;
-        const month = String(now.getMonth()+1).padStart(2,'0');
-        const day = String(now.getDate()).padStart(2,'0');
-        const hours = String(now.getHours()).padStart(2,'0');
-        const minutes = String(now.getMinutes()).padStart(2,'0');
-        const seconds = String(now.getSeconds()).padStart(2,'0');
+        // Only update when seconds change
+        if (timeData.seconds === this.lastSecond) return;
+        this.lastSecond = timeData.seconds;
+        
+        const year = timeData.year + 10000;
+        const month = String(timeData.month+1).padStart(2,'0');
+        const day = String(timeData.day).padStart(2,'0');
+        const hours = String(timeData.hours).padStart(2,'0');
+        const minutes = String(timeData.minutes).padStart(2,'0');
+        const seconds = String(timeData.seconds).padStart(2,'0');
         this.element.textContent = `HE ${year}/${month}/${day} ${hours}:${minutes}:${seconds}`;
     }
 }
@@ -119,14 +131,15 @@ class HoloceneTimestamp {
 // ========== GEOLOCATION HANDLER ==========
 class GeolocationHandler {
     constructor() {
-        this.latitude = 40;
-        this.longitude = 0;
+        this.latitude = 50.80724821763106;
+        this.longitude = 3.113920551703155;
         this.onLocationChange = null;
     }
+
     init() {
         const statusEl = document.getElementById('statusMessage');
         if (!navigator.geolocation) {
-            if (statusEl) statusEl.textContent = "🌐 Geolocation not supported – using fallback 40°N, 0°E";
+            if (statusEl) statusEl.textContent = "🌐 Geolocation not supported – using fallback 50.81°N, 3.11°E";
             return;
         }
         if (statusEl) statusEl.textContent = "📍 Requesting location...";
@@ -139,10 +152,14 @@ class GeolocationHandler {
                 if (this.onLocationChange) this.onLocationChange(this.latitude, this.longitude);
             },
             (err) => {
-                if (statusEl) statusEl.textContent = "⚠️ Geolocation denied – using fallback 40°N, 0°E";
+                if (statusEl) statusEl.textContent = "⚠️ Geolocation denied – using fallback 50.81°N, 3.11°E";
                 if (this.onLocationChange) this.onLocationChange(40, 0);
             }
         );
+    }
+    getLocationKey() {
+        const prec = CONFIG.locationPrecision;
+        return `${this.latitude.toFixed(prec)}/${this.longitude.toFixed(prec)}`;
     }
 }
 
@@ -159,13 +176,17 @@ class MoonRenderer {
         this.cacheDate = null;
     }
     
-    updatePhase() {
-        const today = new Date();
-        const dateKey = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
-        
-        if (this.cacheDate !== dateKey) {
-            this.cachedPhase = this.moonPhase.getPhase(today);
-            this.cacheDate = dateKey;
+    updatePosition(cx, cy, radius, latitude) {
+        this.cx = cx;
+        this.cy = cy;
+        this.radius = radius;
+        this.latitude = latitude;
+    }
+    
+    updatePhase(timeData) {
+        if (this.cacheDate !== timeData.dateKey) {
+            this.cachedPhase = this.moonPhase.getPhase(timeData.date);
+            this.cacheDate = timeData.dateKey;
         }
     }
     
@@ -225,9 +246,14 @@ class MoonRenderer {
 class MoonPhaseDisplay {
     constructor() {
         this.element = document.getElementById('moonPhase');
+        this.lastDisplayedPhase = null;
     }
     update(phaseData) {
         if (!this.element || !phaseData) return;
+        // Only update DOM if phase actually changed
+        if (this.lastDisplayedPhase === phaseData.phaseName) return;
+        this.lastDisplayedPhase = phaseData.phaseName;
+        
         const percent = Math.round(phaseData.illumination);
         this.element.textContent = `${phaseData.symbol} ${phaseData.phaseName} (${percent}%)`;
     }
@@ -241,84 +267,130 @@ class ClockDial {
         this.cy = cy;
         this.radius = radius;
         this.config = config;
+        // Pre-calculate hour and half-hour angles
+        this._hourAngles = [];
+        this._halfHourAngles = [];
+        for (let h = 0; h < 24; h++) {
+            this._hourAngles.push(hourToAngle(h));
+            this._halfHourAngles.push(hourToAngle(h + 0.5));
+        }
     }
+    
+    updatePosition(cx, cy, radius) {
+        this.cx = cx;
+        this.cy = cy;
+        this.radius = radius;
+    }
+    
     draw() {
         this._drawTicks();
         this._drawHourNumbers();
         this._drawMinuteMarkers();
         this._drawBorder();
     }
+    
     _drawTicks() {
+        const ctx = this.ctx;
         const start = this.radius - 20;
         const end = this.radius - 4;
+        
+        ctx.save();
+        
+        // Draw hour ticks
         for (let h = 0; h < 24; h++) {
-            const angle = hourToAngle(h);
+            const angle = this._hourAngles[h];
             const p1 = getPosition(angle, start, this.cx, this.cy);
             const p2 = getPosition(angle, end, this.cx, this.cy);
-            this.ctx.beginPath();
-            this.ctx.moveTo(p1.x, p1.y);
-            this.ctx.lineTo(p2.x, p2.y);
-            this.ctx.lineWidth = (h % 6 === 0) ? 3 : 1.5;
-            this.ctx.strokeStyle = this.config.colors.tickMajor;
-            this.ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.lineWidth = (h % 6 === 0) ? 3 : 1.5;
+            ctx.strokeStyle = this.config.colors.tickMajor;
+            ctx.stroke();
         }
+        
+        // Draw half-hour ticks
         const minorStart = start + 3;
+        const minorEnd = end - 2;
         for (let h = 0; h < 24; h++) {
-            const angle = hourToAngle(h + 0.5);
+            const angle = this._halfHourAngles[h];
             const p1 = getPosition(angle, minorStart, this.cx, this.cy);
-            const p2 = getPosition(angle, end - 2, this.cx, this.cy);
-            this.ctx.beginPath();
-            this.ctx.moveTo(p1.x, p1.y);
-            this.ctx.lineTo(p2.x, p2.y);
-            this.ctx.lineWidth = 1;
-            this.ctx.strokeStyle = this.config.colors.tickMinor;
-            this.ctx.stroke();
+            const p2 = getPosition(angle, minorEnd, this.cx, this.cy);
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.lineWidth = 1;
+            ctx.strokeStyle = this.config.colors.tickMinor;
+            ctx.stroke();
         }
+        
+        ctx.restore();
     }
+    
     _drawHourNumbers() {
+        const ctx = this.ctx;
         const r = this.radius + 18;
+        
+        ctx.save();
+        ctx.font = `bold ${Math.floor(this.radius * 0.08)}px "Segoe UI", monospace`;
+        ctx.fillStyle = this.config.colors.textGeneral;
+        ctx.shadowBlur = 3;
+        ctx.shadowColor = "rgba(0,0,0,0.7)";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        
         for (let h = 0; h < 24; h++) {
             if (h % this.config.showEveryNthHour !== 0) continue;
-            const angle = hourToAngle(h);
+            const angle = this._hourAngles[h];
             const pos = getPosition(angle, r, this.cx, this.cy);
-            this.ctx.font = `bold ${Math.floor(this.radius * 0.08)}px "Segoe UI", monospace`;
-            this.ctx.fillStyle = this.config.colors.textGeneral;
-            this.ctx.shadowBlur = 3;
-            this.ctx.shadowColor = "rgba(0,0,0,0.7)";
-            this.ctx.textAlign = "center";
-            this.ctx.textBaseline = "middle";
-            this.ctx.fillText(h.toString(), pos.x, pos.y);
+            ctx.fillText(h.toString(), pos.x, pos.y);
         }
+        
+        ctx.restore();
     }
+    
     _drawMinuteMarkers() {
+        const ctx = this.ctx;
         const r = this.radius * 0.7;
+        
+        ctx.save();
+        ctx.font = `bold ${Math.floor(this.radius * 0.05)}px "Segoe UI", monospace`;
+        ctx.fillStyle = this.config.colors.minuteMarkers;
+        ctx.shadowBlur = 2;
+        ctx.shadowColor = "rgba(0,0,0,0.8)";
+        ctx.strokeStyle = "rgba(0,0,0,0.4)";
+        ctx.lineWidth = 1.5;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        
         for (let m = 0; m < 60; m++) {
             if (m % this.config.showEveryNthMinute !== 0) continue;
             const angle = minuteToAngle(m);
             const pos = getPosition(angle, r, this.cx, this.cy);
-            this.ctx.font = `bold ${Math.floor(this.radius * 0.05)}px "Segoe UI", monospace`;
-            this.ctx.fillStyle = this.config.colors.minuteMarkers;
-            this.ctx.shadowBlur = 2;
-            this.ctx.shadowColor = "rgba(0,0,0,0.8)";
-            this.ctx.strokeStyle = "rgba(0,0,0,0.4)";
-            this.ctx.lineWidth = 1.5;
-            this.ctx.textAlign = "center";
-            this.ctx.textBaseline = "middle";
-            this.ctx.strokeText(m.toString(), pos.x, pos.y);
-            this.ctx.fillText(m.toString(), pos.x, pos.y);
+            ctx.strokeText(m.toString(), pos.x, pos.y);
+            ctx.fillText(m.toString(), pos.x, pos.y);
         }
+        
+        ctx.restore();
     }
+    
     _drawBorder() {
-        this.ctx.beginPath();
-        this.ctx.arc(this.cx, this.cy, this.radius, 0, 2*Math.PI);
-        this.ctx.lineWidth = 3;
-        this.ctx.strokeStyle = this.config.colors.dialBorder;
-        this.ctx.stroke();
-        this.ctx.beginPath();
-        this.ctx.arc(this.cx, this.cy, this.radius - 12, 0, 2*Math.PI);
-        this.ctx.lineWidth = 1;
-        this.ctx.strokeStyle = "rgba(255,255,200,0.2)";
-        this.ctx.stroke();
+        const ctx = this.ctx;
+        ctx.save();
+        
+        ctx.beginPath();
+        ctx.arc(this.cx, this.cy, this.radius, 0, 2*Math.PI);
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = this.config.colors.dialBorder;
+        ctx.stroke();
+        
+        ctx.beginPath();
+        ctx.arc(this.cx, this.cy, this.radius - 12, 0, 2*Math.PI);
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = "rgba(255,255,200,0.2)";
+        ctx.stroke();
+        
+        ctx.restore();
     }
 }
 
@@ -331,23 +403,35 @@ class ClockHands {
         this.maxRadius = maxRadius;
         this.config = config;
     }
+    
+    updatePosition(cx, cy, maxRadius) {
+        this.cx = cx;
+        this.cy = cy;
+        this.maxRadius = maxRadius;
+    }
+    
     draw(time) {
         this._drawHand(hourToAngle(time.decimalHours), this.config.handLengths.hour, this.config.handWidths.hour, this.config.colors.hourHand);
         this._drawHand(minuteToAngle(time.decimalMinutes), this.config.handLengths.minute, this.config.handWidths.minute, this.config.colors.minuteHand);
         this._drawHand(secondToAngle(time.seconds), this.config.handLengths.second, this.config.handWidths.second, this.config.colors.secondHand);
     }
+    
     _drawHand(angle, lenRatio, width, color) {
+        const ctx = this.ctx;
         const len = this.maxRadius * lenRatio;
         const pos = getPosition(angle, len, this.cx, this.cy);
-        this.ctx.beginPath();
-        this.ctx.moveTo(this.cx, this.cy);
-        this.ctx.lineTo(pos.x, pos.y);
-        this.ctx.lineWidth = width;
-        this.ctx.lineCap = "round";
-        this.ctx.strokeStyle = color;
-        this.ctx.shadowBlur = 8;
-        this.ctx.shadowColor = "rgba(0,0,0,0.5)";
-        this.ctx.stroke();
+        
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(this.cx, this.cy);
+        ctx.lineTo(pos.x, pos.y);
+        ctx.lineWidth = width;
+        ctx.lineCap = "round";
+        ctx.strokeStyle = color;
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = "rgba(0,0,0,0.5)";
+        ctx.stroke();
+        ctx.restore();
     }
 }
 
@@ -360,20 +444,30 @@ class HourTracker {
         this.maxRadius = maxRadius;
         this.config = config;
     }
+    
+    updatePosition(cx, cy, maxRadius) {
+        this.cx = cx;
+        this.cy = cy;
+        this.maxRadius = maxRadius;
+    }
+    
     draw(decimalHours) {
         if (!this.config.hourTrackerEnabled) return;
+        const ctx = this.ctx;
         const r = this.maxRadius - 24;
         const angle = hourToAngle(decimalHours);
         const pos = getPosition(angle, r, this.cx, this.cy);
-        this.ctx.beginPath();
-        this.ctx.arc(pos.x, pos.y, this.config.hourTrackerRadius, 0, 2*Math.PI);
-        this.ctx.fillStyle = this.config.colors.hourHand;
+        
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y, this.config.hourTrackerRadius, 0, 2*Math.PI);
+        ctx.fillStyle = this.config.colors.hourHand;
         if (this.config.hourTrackerGlow) {
-            this.ctx.shadowBlur = 8;
-            this.ctx.shadowColor = this.config.colors.hourHand;
+            ctx.shadowBlur = 8;
+            ctx.shadowColor = this.config.colors.hourHand;
         }
-        this.ctx.fill();
-        this.ctx.shadowBlur = 0;
+        ctx.fill();
+        ctx.restore();
     }
 }
 
@@ -386,12 +480,25 @@ class GradientGenerator {
         this.radius = radius;
         this.latitude = latitude;
         this.longitude = longitude;
-        this.gradientSteps = this.config.gradientSteps; 
+        this.gradientSteps = this.config.gradientSteps;
+        this._offscreenCanvas = null;
     }
     
-    generate() {
-        const today = new Date();
-        const solar = new SolarDay(today, this.latitude, this.longitude);
+    updatePosition(cx, cy, radius) {
+        this.cx = cx;
+        this.cy = cy;
+        this.radius = radius;
+        this._offscreenCanvas = null; // Force recreation on next generate
+    }
+    
+    updateLocation(latitude, longitude) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this._offscreenCanvas = null;
+    }
+    
+    generate(timeData) {
+        const solar = new SolarDay(timeData.date, this.latitude, this.longitude);
         
         if (solar.isPolarDay) {
             return this._makeSolidGradient(this.config.colors.solarNoon);
@@ -418,34 +525,14 @@ class GradientGenerator {
         const astroDusk = getAngle(solar.astronomicalDusk);       
         
         let noon = null;
-        let nadir = null
+        let nadir = null;
         if (sunrise !== null && sunset !== null) {    
             noon = (sunrise + sunset)/2;
             nadir = noon - 180;
         }
-        
-        console.log('astroDawn = ' + astroDawn + " solar.astronomicalDawn = " + solar.astronomicalDawn);
-        console.log('naupDawn = ' + naupDawn + " solar.nauticalDawn = " + solar.nauticalDawn);
-        console.log('civilDawn = ' + civilDawn + " solar.civilDawn = " + solar.civilDawn);
-        console.log('sunrise = ' + sunrise + " solar.sunrise = " + solar.sunrise);
-        
-        console.log('noon = ' + noon);
-        
-        console.log('sunset = ' + sunset + " solar.sunset = " + solar.sunset);
-        console.log('civilDusk = ' + civilDusk + " solar.civilDusk = " + solar.civilDusk);
-        console.log('naupDusk = ' + naupDusk + " solar.nauticalDusk = " + solar.nauticalDusk);
-        console.log('astroDusk = ' + astroDusk + " solar.astronomicalDusk = " + solar.astronomicalDusk);
-
-        console.log('nadir = ' + nadir);
-        
-        console.log('===================================================');        
-        console.log();        
-        console.log('===================================================');
-        
-        
+         
         const arcs = [];
         const c = this.config.colors;
-        
         
         if (noon !== null && sunset !== null)
             arcs.push({ start: noon, end: sunset, startColor: c.solarNoon, endColor: c.sunrise });
@@ -468,11 +555,15 @@ class GradientGenerator {
         if (sunrise !== null && noon !== null)
             arcs.push({ start: sunrise, end: noon, startColor: c.sunrise, endColor: c.solarNoon });
   
-        // Create offscreen canvas
-        const off = document.createElement('canvas');
-        off.width = this.config.size;
-        off.height = this.config.size;
+        // Reuse offscreen canvas
+        if (!this._offscreenCanvas) {
+            this._offscreenCanvas = document.createElement('canvas');
+            this._offscreenCanvas.width = this.config.size;
+            this._offscreenCanvas.height = this.config.size;
+        }
+        const off = this._offscreenCanvas;
         const offCtx = off.getContext('2d');
+        offCtx.clearRect(0, 0, off.width, off.height);
         
         // Fill background with night
         offCtx.beginPath();
@@ -510,10 +601,15 @@ class GradientGenerator {
     }
     
     _makeSolidGradient(color) {
-        const off = document.createElement('canvas');
-        off.width = this.config.size;
-        off.height = this.config.size;
+        if (!this._offscreenCanvas) {
+            this._offscreenCanvas = document.createElement('canvas');
+            this._offscreenCanvas.width = this.config.size;
+            this._offscreenCanvas.height = this.config.size;
+        }
+        const off = this._offscreenCanvas;
         const offCtx = off.getContext('2d');
+        offCtx.clearRect(0, 0, off.width, off.height);
+        
         offCtx.beginPath();
         offCtx.arc(this.cx, this.cy, this.radius, 0, 2*Math.PI);
         offCtx.fillStyle = hslToString(color.h, color.s, color.l);
@@ -548,6 +644,7 @@ class ClockApp {
         this.moonDisplay = new MoonPhaseDisplay();
         
         this.animationId = null;
+        this._isPageVisible = true;
         
         this._init();
     }
@@ -555,8 +652,22 @@ class ClockApp {
     _init() {
         this._resize();
         window.addEventListener('resize', () => this._resize());
+        
+        // Handle page visibility for animation cleanup
+        document.addEventListener('visibilitychange', () => {
+            this._isPageVisible = !document.hidden;
+            if (this._isPageVisible) {
+                this._startAnimation();
+            } else {
+                this._stopAnimation();
+            }
+        });
+        
         this.geolocation.onLocationChange = () => {
             this._invalidateGradient();
+            if (this.gradientGenerator) {
+                this.gradientGenerator.updateLocation(this.geolocation.latitude, this.geolocation.longitude);
+            }
             this._updateMoonRenderer();
         };
         this.geolocation.init();
@@ -564,6 +675,10 @@ class ClockApp {
     }
     
     _resize() {
+        // Temporarily remove inline width to let container expand naturally
+        this.canvas.style.width = '';
+        this.canvas.style.height = '';
+        
         const container = this.canvas.parentElement;
         const maxSize = Math.min(container.clientWidth, window.innerWidth * 0.8, this.config.size);
         this.canvas.style.width = `${maxSize}px`;
@@ -577,57 +692,85 @@ class ClockApp {
         this.gradientRadius = this.clockRadius - this.config.gradientMargin;
         this.moonRadius = this.clockRadius * this.config.moonRadiusRatio;
         
-        this.dial = new ClockDial(this.ctx, this.centerX, this.centerY, this.clockRadius, this.config);
-        this.hands = new ClockHands(this.ctx, this.centerX, this.centerY, this.clockRadius, this.config);
-        this.tracker = new HourTracker(this.ctx, this.centerX, this.centerY, this.clockRadius, this.config);
+        // Update existing objects instead of recreating
+        if (this.dial) {
+            this.dial.updatePosition(this.centerX, this.centerY, this.clockRadius);
+        } else {
+            this.dial = new ClockDial(this.ctx, this.centerX, this.centerY, this.clockRadius, this.config);
+        }
+        
+        if (this.hands) {
+            this.hands.updatePosition(this.centerX, this.centerY, this.clockRadius);
+        } else {
+            this.hands = new ClockHands(this.ctx, this.centerX, this.centerY, this.clockRadius, this.config);
+        }
+        
+        if (this.tracker) {
+            this.tracker.updatePosition(this.centerX, this.centerY, this.clockRadius);
+        } else {
+            this.tracker = new HourTracker(this.ctx, this.centerX, this.centerY, this.clockRadius, this.config);
+        }
+        
+        if (this.gradientGenerator) {
+            this.gradientGenerator.updatePosition(this.centerX, this.centerY, this.gradientRadius);
+        }
         
         this._invalidateGradient();
         this._updateMoonRenderer();
         this._render();
     }
-    
+
     _invalidateGradient() {
         this.gradientCache = null;
         this.cacheKey = null;
-        this.gradientGenerator = new GradientGenerator(
-            this.config, 
-            this.centerX, 
-            this.centerY, 
-            this.gradientRadius, 
-            this.geolocation.latitude, 
-            this.geolocation.longitude
-        );
+        if (!this.gradientGenerator) {
+            this.gradientGenerator = new GradientGenerator(
+                this.config, 
+                this.centerX, 
+                this.centerY, 
+                this.gradientRadius, 
+                this.geolocation.latitude, 
+                this.geolocation.longitude
+            );
+        }
     }
     
     _updateMoonRenderer() {
-        this.moonRenderer = new MoonRenderer(
-            this.config,
-            this.centerX,
-            this.centerY,
-            this.moonRadius,
-            this.geolocation.latitude
-        );
-        this.moonRenderer.updatePhase();
+        if (this.moonRenderer) {
+            this.moonRenderer.updatePosition(this.centerX, this.centerY, this.moonRadius, this.geolocation.latitude);
+        } else {
+            this.moonRenderer = new MoonRenderer(
+                this.config,
+                this.centerX,
+                this.centerY,
+                this.moonRadius,
+                this.geolocation.latitude
+            );
+        }
+        // Force phase update on location change
+        this.moonRenderer.cacheDate = null;
     }
     
-    _updateGradientCache() {
-        const now = new Date();
-        const dateKey = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
-        const locKey = `${this.geolocation.latitude}/${this.geolocation.longitude}`;
-        const newKey = `${dateKey}|${locKey}`;
+    _updateGradientCache(timeData) {
+        const locKey = this.geolocation.getLocationKey();
+        const newKey = `${timeData.dateKey}|${locKey}`;
         if (this.cacheKey !== newKey || !this.gradientCache) {
-            this.gradientCache = this.gradientGenerator.generate();
+            this.gradientCache = this.gradientGenerator.generate(timeData);
             this.cacheKey = newKey;
         }
     }
     
     _render() {
         if (!this.ctx) return;
-        this.timestamp.update();
         
-        // Update moon phase if date changed
+        // Single time source for entire frame
+        const timeData = this.timeSource.getCurrentTime();
+        
+        this.timestamp.update(timeData);
+        
+        // Update moon phase using timeData
         if (this.moonRenderer) {
-            this.moonRenderer.updatePhase();
+            this.moonRenderer.updatePhase(timeData);
             if (this.moonRenderer.cachedPhase) {
                 this.moonDisplay.update(this.moonRenderer.cachedPhase);
             }
@@ -638,7 +781,7 @@ class ClockApp {
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         
         // Draw twilight gradient
-        this._updateGradientCache();
+        this._updateGradientCache(timeData);
         if (this.gradientCache) {
             this.ctx.drawImage(this.gradientCache, 0, 0);
         } else {
@@ -661,25 +804,37 @@ class ClockApp {
         this.dial.draw();
         
         // Draw hands
-        const time = this.timeSource.getCurrentTime();
-        this.hands.draw(time);
-        this.tracker.draw(time.decimalHours);
+        this.hands.draw(timeData);
+        this.tracker.draw(timeData.decimalHours);
         
         // Draw centre cap
+        this.ctx.save();
         this.ctx.beginPath();
         this.ctx.arc(this.centerX, this.centerY, 4, 0, 2*Math.PI);
         this.ctx.fillStyle = this.config.colors.secondHand;
         this.ctx.shadowBlur = 4;
         this.ctx.fill();
-        this.ctx.shadowBlur = 0;
+        this.ctx.restore();
     }
     
     _startAnimation() {
+        if (this.animationId) return;
         const loop = () => {
+            if (!this._isPageVisible) {
+                this.animationId = null;
+                return;
+            }
             this._render();
             this.animationId = setTimeout(() => requestAnimationFrame(loop), this.config.updateInterval);
         };
         loop();
+    }
+    
+    _stopAnimation() {
+        if (this.animationId) {
+            clearTimeout(this.animationId);
+            this.animationId = null;
+        }
     }
 }
 
