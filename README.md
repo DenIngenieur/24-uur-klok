@@ -14,6 +14,7 @@ Zie het ding in werking: [naar de klok](https://deningenieur.github.io/24-uur-kl
 - **Tegen de klok in** – de tijd loopt linksom
 - **Zonsopgang / zonsondergang** bepaalt een vloeiend kleurenverloop op de wijzerplaat: diepblauwe nacht → paarse schemeringen → rozig ochtendgloren → warm gouden dag → oranje zonsondergang → en weer terug
 - **Schijngestalten van de maan** in het midden van de wijzerplaat, inclusief parallactische rotatie op basis van je breedtegraad
+- **Breedtegraad-schuifregelaar** – verken hoe de dag en nacht veranderen van pool tot pool, in real-time
 - **Holoceen kalender** – huidig jaar + 10.000 (bijv. 12026 HE)
 - **Uurwijzer-tracker** – een stip die het huidige uur volgt langs de rand
 
@@ -39,14 +40,19 @@ Waarom 10.000? Het Holoceen-tijdperk begon ~11.700 jaar geleden — toen de IJst
 
 - Vraagt locatie (toestemming) voor nauwkeurige zonsopkomst, zonsondergang en alle schemeringen
 - Zonder locatie → valt terug op 50.81°N, 3.11°O (Vlaanderen, België)
+- **Breedtegraad-schuifregelaar** – sleep van 90°N naar 90°Z om te zien hoe dag/nacht en de maanoriëntatie veranderen
+- Resetknop om terug te keren naar je echte locatie
 - Maanstand wordt berekend op basis van een referentie-nieuwe-maan (17 april 2026)
 - Toont maanfase, symbool en verlichtingspercentage
+- Werkt correct op alle breedtegraden, inclusief pooldag, poolnacht, en gedeeltelijke schemeringen
 
 ## 🧩 Technisch
 
 - Pure HTML/CSS/JS – geen externe bibliotheken
 - **720 wigjes** (`gradientSteps: 720` in CONFIG, ofwel 0,5° per stap) voor vloeiende kleurovergangen zonder zichtbare randen
-- **HSL-kleurinterpolatie** tussen ankerpunten (diepste nacht, astronomische/náutische/civiele schemering, zonsopgang/ondergang, middagzon)
+- **HSL-kleurinterpolatie** tussen ankerpunten (diepste nacht, astronomische/náutische/civiele schemering, zonsopgang/ondergang, middagzon, pooldag)
+- Nachtkleur past zich automatisch aan wanneer schemeringen wegvallen op hoge breedtegraden
+- Zonnenadir bepaald via `SunPosition` voor nauwkeurige nachtkleur bij gedeeltelijke schemeringen
 - Maanfase, wijzers, gradiënt en tracker worden getekend op een HTML5-canvas
 - Past zich aan elke schermgrootte aan (schaalt correct op én neer)
 - Verloop en maanfase worden één keer per dag berekend en gecached
@@ -58,17 +64,19 @@ Waarom 10.000? Het Holoceen-tijdperk begon ~11.700 jaar geleden — toen de IJst
 ## 📁 Bestanden
 
 - `index.html` – de klokpagina
-- `style.css` – uiterlijk, donker thema
-- `astro.js` – astronomische berekeningen (Juliaanse dag, zonspositie, zonsopkomst/ondergang, schemeringen)
+- `style.css` – pagina-layout (body, container)
+- `clock.css` – klok-specifieke stijl (canvas, labels, schuifregelaar)
+- `astro.js` – astronomische berekeningen (Juliaanse dag, zonspositie, zonsopkomst/ondergang, schemeringen, zonnemiddag/nadir)
 - `moonphase.js` – maanfase-berekeningen (fase, verlichting, symbool)
-- `clock.js` – alle tekenlogica (gradiënt, maan, wijzerplaat, wijzers, tracker)
+- `clock.js` – alle tekenlogica (gradiënt, maan, wijzerplaat, wijzers, tracker, breedtegraad-schuifregelaar)
 
 ## 🚀 Live gebruiken
 
-1. Download de vijf bestanden in één map.
+1. Download de bestanden in één map.
 2. Open `index.html` in een moderne browser (Chrome, Firefox, Edge).
 3. Geef toestemming voor locatie (voor echte zonsopkomst/ondergang).
-4. Klaar – de klok draait.
+4. Gebruik de schuifregelaar om breedtegraden te verkennen.
+5. Klaar – de klok draait.
 
 ## 🎨 Configuratie
 
@@ -101,7 +109,8 @@ astronomical:  { h: 240, s: 55, l: 18 },  // astronomische schemering
 nautical:      { h: 250, s: 40, l: 30 },  // nautische schemering
 civil:         { h: 280, s: 30, l: 45 },  // civiele schemering
 sunrise:       { h: 35,  s: 60, l: 55 },  // zonsopgang/ondergang
-solarNoon:     { h: 50,  s: 40, l: 75 }   // middagzon
+solarNoon:     { h: 50,  s: 40, l: 75 },  // middagzon
+polarDay:      { h: 51, s: 100, l: 70 }   // pooldag
 ```
 
 # 🕰️ Holocene Clock – 24h counterclockwise, with sun, moon and 10,000 years of history
@@ -110,12 +119,15 @@ A remarkable clock that runs **counterclockwise**, displays **24 hours**, and sh
 
 See it in action: [to the clock](https://deningenieur.github.io/24-uur-klok/)
 
+---
+
 ## ✨ What makes this clock different?
 
 - **12 o'clock (noon) is at the top**, midnight (0h) at the bottom
 - **Counterclockwise** – time moves leftwards
 - **Sunrise/sunset** creates a smooth colour gradient on the dial: deep blue night → purple twilights → rosy dawn → warm golden day → orange sunset → and back again
 - **Moon phases** displayed in the centre of the dial, including parallactic rotation based on your latitude
+- **Latitude slider** – explore how day and night change from pole to pole, in real-time
 - **Holocene calendar** – current year + 10,000 (e.g. 12026 HE)
 - **Hour tracker** – a dot that follows the current hour along the edge
 
@@ -141,14 +153,19 @@ Why 10,000? The Holocene Epoch began ~11,700 years ago — when the Ice Age ende
 
 - Requests location (permission) for accurate sunrise, sunset and all twilights
 - Without location → falls back to 50.81°N, 3.11°E (Flanders, Belgium)
+- **Latitude slider** – drag from 90°N to 90°S to see how day/night and moon orientation change
+- Reset button to return to your real location
 - Moon phase calculated using a reference new moon (17 April 2026)
 - Displays moon phase name, symbol and illumination percentage
+- Works correctly at all latitudes, including polar day, polar night, and partial twilights
 
 ## 🧩 Technical
 
 - Pure HTML/CSS/JS – no external libraries
 - **720 wedges** (`gradientSteps: 720` in CONFIG, or 0.5° per step) for smooth colour gradients with no visible banding
-- **HSL colour interpolation** between anchor points (deepest night, astronomical/nautical/civil twilight, sunrise/sunset, solar noon)
+- **HSL colour interpolation** between anchor points (deepest night, astronomical/nautical/civil twilight, sunrise/sunset, solar noon, polar day)
+- Night colour automatically adapts when twilights disappear at high latitudes
+- Solar nadir computed via `SunPosition` for accurate night colour during partial twilights
 - Moon phase, hands, gradient and tracker drawn on an HTML5 canvas
 - Adapts to any screen size (scales both up and down correctly)
 - Gradient and moon phase calculated once per day and cached
@@ -160,17 +177,19 @@ Why 10,000? The Holocene Epoch began ~11,700 years ago — when the Ice Age ende
 ## 📁 Files
 
 - `index.html` – the clock page
-- `style.css` – appearance, dark theme
-- `astro.js` – astronomical calculations (Julian date, sun position, sunrise/sunset, twilights)
+- `style.css` – page layout (body, container)
+- `clock.css` – clock-specific styling (canvas, labels, slider)
+- `astro.js` – astronomical calculations (Julian date, sun position, sunrise/sunset, twilights, solar noon/nadir)
 - `moonphase.js` – moon phase calculations (phase, illumination, symbol)
-- `clock.js` – all drawing logic (gradient, moon, dial, hands, tracker)
+- `clock.js` – all drawing logic (gradient, moon, dial, hands, tracker, latitude slider)
 
 ## 🚀 Use it live
 
-1. Download the five files into one folder.
+1. Download the files into one folder.
 2. Open `index.html` in a modern browser (Chrome, Firefox, Edge).
 3. Grant location permission (for real sunrise/sunset times).
-4. Done – the clock is running.
+4. Use the slider to explore different latitudes.
+5. Done – the clock is running.
 
 ## 🎨 Configuration
 
@@ -203,6 +222,7 @@ astronomical:  { h: 240, s: 55, l: 18 },  // astronomical twilight
 nautical:      { h: 250, s: 40, l: 30 },  // nautical twilight
 civil:         { h: 280, s: 30, l: 45 },  // civil twilight
 sunrise:       { h: 35,  s: 60, l: 55 },  // sunrise/sunset
-solarNoon:     { h: 50,  s: 40, l: 75 }   // noon sun
+solarNoon:     { h: 50,  s: 40, l: 75 },  // noon sun
+polarDay:      { h: 51, s: 100, l: 70 }   // polar day
 ```
 

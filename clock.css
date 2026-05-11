@@ -1,0 +1,116 @@
+#clockCanvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-width: 600px;
+    border-radius: 50%;
+    box-shadow: 0 20px 35px rgba(0, 0, 0, 0.5), 0 0 0 8px rgba(255, 255, 255, 0.05);
+    transition: all 0.2s ease;
+}
+
+.clock-label {
+    font-family: 'Courier New', 'Fira Code', monospace;
+    font-size: 1.2rem;
+    font-weight: bold;
+    letter-spacing: 2px;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(8px);
+    padding: 8px 18px;
+    border-radius: 60px;
+    color: #d4ffaa;
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(100, 200, 100, 0.3);
+    text-align: center;
+}
+
+.clock-status {
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    padding: 5px 14px;
+    border-radius: 40px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    color: #aaa;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    text-align: center;
+    font-family: monospace;
+}
+
+#statusMessage {
+    transition: color 0.2s;
+}
+
+.latitude-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+    padding: 6px 16px;
+    border-radius: 40px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+.latitude-control label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #ccc;
+    min-width: 100px;
+    text-align: right;
+    letter-spacing: 0.5px;
+    cursor: default;
+    user-select: none;
+}
+
+.latitude-control input[type="range"] {
+    width: 160px;
+    accent-color: #4a6e8c;
+    cursor: pointer;
+    background: transparent;
+}
+
+.latitude-control button {
+    font-size: 0.75rem;
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.08);
+    color: #ccc;
+    cursor: pointer;
+    font-family: inherit;
+    letter-spacing: 0.5px;
+    transition: background 0.15s;
+}
+
+.latitude-control button:hover {
+    background: rgba(255, 255, 255, 0.18);
+}
+
+@media (max-width: 550px) {
+    .clock-label {
+        font-size: 0.85rem;
+        padding: 5px 12px;
+        letter-spacing: 1px;
+    }
+    .clock-status {
+        font-size: 0.65rem;
+        padding: 4px 10px;
+    }
+    .latitude-control {
+        padding: 5px 10px;
+        gap: 6px;
+    }
+    .latitude-control label {
+        font-size: 0.7rem;
+        min-width: 80px;
+    }
+    .latitude-control input[type="range"] {
+        width: 100px;
+    }
+    .latitude-control button {
+        font-size: 0.65rem;
+        padding: 3px 8px;
+    }
+}

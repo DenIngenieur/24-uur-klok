@@ -47,7 +47,8 @@ const CONFIG = {
         nautical: { h: 250, s: 40, l: 30 },
         civil: { h: 280, s: 30, l: 45 },
         sunrise: { h: 35, s: 60, l: 55 },
-        solarNoon: { h: 50, s: 40, l: 75 }
+        solarNoon: { h: 50, s: 40, l: 75 },
+        polarDay: { h: 51, s: 100, l: 70 }
     },
     
     handLengths: { hour: 0.38, minute: 0.58, second: 0.72 },
@@ -498,9 +499,9 @@ class GradientGenerator {
     
     generate(timeData) {
         const solar = new SolarDay(timeData.date, this.latitude, this.longitude);
-        
+
         if (solar.isPolarDay) {
-            return this._makeSolidGradient(this.config.colors.solarNoon);
+            return this._makeSolidGradient(this.config.colors.polarDay);
         }
         if (solar.isPolarNight) {
             return this._makeSolidGradient(this.config.colors.deepNight);
@@ -521,17 +522,35 @@ class GradientGenerator {
         const sunset = getAngle(solar.sunset);
         const civilDusk = getAngle(solar.civilDusk);
         const naupDusk = getAngle(solar.nauticalDusk);
-        const astroDusk = getAngle(solar.astronomicalDusk);       
+        const astroDusk = getAngle(solar.astronomicalDusk);
+        const noon = getAngle(solar.solarNoon);
+        const nadir = getAngle(solar.nadir);  
         
-        let noon = null;
-        let nadir = null;
-        if (sunrise !== null && sunset !== null) {    
-            noon = (sunrise + sunset)/2;
-            nadir = noon - 180;
-        }
-         
-        const arcs = [];
+        // --- Determine background colour from sun's altitude at nadir ---
         const c = this.config.colors;
+        let nightColor = c.deepNight;  // default: full darkness
+        
+        if (solar.nadir) {
+            // Compute sun's altitude at nadir using SunPosition
+            const nadirJD = new JulianDate(solar.nadir);
+            const nadirPos = new SunPosition(nadirJD, this.latitude, this.longitude);
+            const nadirAlt = nadirPos.altitude();
+            
+            // Map altitude to the deepest twilight colour
+            // Twilight boundaries: civil -6°, nautical -12°, astronomical -18°
+            if (nadirAlt > -6) {
+                nightColor = c.civil;          // sun never leaves civil twilight
+            } else if (nadirAlt > -12) {
+                nightColor = c.nautical;       // deepest is nautical twilight
+            } else if (nadirAlt > -18) {
+                nightColor = c.astronomical;   // deepest is astronomical twilight
+            } else {
+                nightColor = c.deepNight;      // full astronomical darkness
+            }
+        }
+        
+        // --- Build arcs ---
+        const arcs = [];
         
         if (noon !== null && sunset !== null)
             arcs.push({ start: noon, end: sunset, startColor: c.solarNoon, endColor: c.sunrise });
@@ -540,21 +559,35 @@ class GradientGenerator {
         if (civilDusk !== null && naupDusk !== null)
             arcs.push({ start: civilDusk, end: naupDusk, startColor: c.civil, endColor: c.nautical });
         if (naupDusk !== null && astroDusk !== null)
-            arcs.push({ start: naupDusk, end: astroDusk, startColor: c.nautical, endColor: c.astronomical });        
+            arcs.push({ start: naupDusk, end: astroDusk, startColor: c.nautical, endColor: c.astronomical });
+        
+        // Night section: from the deepest dusk to the deepest dawn
+        // If both astro dusk and astro dawn exist, we have two arcs (dusk→nadir, nadir→dawn)
+        // If one or both are missing, we connect whatever is available to nadir
         if (astroDusk !== null && astroDawn !== null) {
-            arcs.push({ start: astroDusk, end: nadir, startColor: c.astronomical, endColor: c.deepNight });
-            arcs.push({ start: nadir, end: astroDawn, startColor: c.deepNight, endColor: c.astronomical });
-        }       
+            arcs.push({ start: astroDusk, end: nadir, startColor: c.astronomical, endColor: nightColor });
+            arcs.push({ start: nadir, end: astroDawn, startColor: nightColor, endColor: c.astronomical });
+        } else if (naupDusk !== null && naupDawn !== null) {
+            arcs.push({ start: naupDusk, end: nadir, startColor: c.nautical, endColor: nightColor });
+            arcs.push({ start: nadir, end: naupDawn, startColor: nightColor, endColor: c.nautical });
+        } else if (civilDusk !== null && civilDawn !== null) {
+            arcs.push({ start: civilDusk, end: nadir, startColor: c.civil, endColor: nightColor });
+            arcs.push({ start: nadir, end: civilDawn, startColor: nightColor, endColor: c.civil });
+        } else if (sunset !== null && sunrise !== null) {
+            arcs.push({ start: sunset, end: nadir, startColor: c.sunrise, endColor: nightColor });
+            arcs.push({ start: nadir, end: sunrise, startColor: nightColor, endColor: c.sunrise });
+        }
+        
         if (astroDawn !== null && naupDawn !== null)
             arcs.push({ start: astroDawn, end: naupDawn, startColor: c.astronomical, endColor: c.nautical });
         if (naupDawn !== null && civilDawn !== null)
             arcs.push({ start: naupDawn, end: civilDawn, startColor: c.nautical, endColor: c.civil });
         if (civilDawn !== null && sunrise !== null)
-            arcs.push({ start: civilDawn, end: sunrise, startColor: c.civil, endColor: c.sunrise });   
+            arcs.push({ start: civilDawn, end: sunrise, startColor: c.civil, endColor: c.sunrise });
         if (sunrise !== null && noon !== null)
             arcs.push({ start: sunrise, end: noon, startColor: c.sunrise, endColor: c.solarNoon });
-  
-        // Reuse offscreen canvas
+
+        // --- Draw ---
         if (!this._offscreenCanvas) {
             this._offscreenCanvas = document.createElement('canvas');
             this._offscreenCanvas.width = this.config.size;
@@ -564,26 +597,29 @@ class GradientGenerator {
         const offCtx = off.getContext('2d');
         offCtx.clearRect(0, 0, off.width, off.height);
         
-        // Fill background with night
+        // Fill background with night colour
         offCtx.beginPath();
         offCtx.arc(this.cx, this.cy, this.radius, 0, 2*Math.PI);
-        offCtx.fillStyle = hslToString(c.deepNight.h, c.deepNight.s, c.deepNight.l);
+        offCtx.fillStyle = hslToString(nightColor.h, nightColor.s, nightColor.l);
         offCtx.fill();
         
-        // Draw each arc with slight overlap to prevent moiré patterns
+        // Draw each arc
         for (const arc of arcs) {
-            // necessary otherwise colours do a wrap around...            
-            if(arc.start < arc.end) { arc.start += 360; }                   
-        
-            const totalAngle = Math.abs(arc.end - arc.start);
+            let start = arc.start;
+            let end = arc.end;
+            
+            // need this to prevent wrap around of colours the wrong way
+            if (start < end) start += 360;
+            
+            const totalAngle = Math.abs(end - start);
             const steps = Math.round((totalAngle / 360) * this.gradientSteps);
             
             for (let i = 0; i < steps; i++) {
                 const t = i / steps;
                 const nextT = (i + 1) / steps;
                 
-                const segStart = arc.start + (arc.end - arc.start) * t;
-                const segEnd = arc.start + (arc.end - arc.start) * (nextT + 0.05);
+                const segStart = start + (end - start) * t;
+                const segEnd = start + (end - start) * (nextT + 0.05);
                 
                 const color = lerpHSL(arc.startColor, arc.endColor, t);
                 
@@ -835,8 +871,22 @@ class ClockApp {
             this.animationId = null;
         }
     }
+        
+    setLatitude(lat) {
+        this.geolocation.latitude = lat;
+        this._invalidateGradient();
+        if (this.gradientGenerator) {
+            this.gradientGenerator.updateLocation(lat, this.geolocation.longitude);
+        }
+        if (this.moonRenderer) {
+            this.moonRenderer.updatePosition(this.centerX, this.centerY, this.moonRadius, lat);
+            this.moonRenderer.cacheDate = null;  // force moon reorientation
+        }
+        this._render();
+    }
 }
 
+// ========== START APPLICATION ==========
 // ========== START APPLICATION ==========
 window.addEventListener('load', () => {
     const canvas = document.getElementById('clockCanvas');
@@ -851,5 +901,53 @@ window.addEventListener('load', () => {
         if (status) status.textContent = "Error: moonphase.js not loaded.";
         return;
     }
-    new ClockApp(canvas, CONFIG);
+    
+    const app = new ClockApp(canvas, CONFIG);
+    window.clockApp = app;
+    
+    // --- Latitude slider ---
+    const latSlider = document.getElementById('latSlider');
+    const latLabel = document.getElementById('latLabel');
+    const latReset = document.getElementById('latReset');
+    
+    if (latSlider && latLabel && latReset) {
+        // Wait briefly for geolocation to resolve, then set initial slider value
+        const setInitialSlider = () => {
+            const originalLat = app.geolocation.latitude;
+            latSlider.value = originalLat;
+            updateSliderLabel(originalLat);
+            
+            latSlider.addEventListener('input', () => {
+                const lat = parseFloat(latSlider.value);
+                updateSliderLabel(lat);
+                app.setLatitude(lat);
+            });
+            
+            latReset.addEventListener('click', () => {
+                latSlider.value = originalLat;
+                updateSliderLabel(originalLat);
+                app.setLatitude(originalLat);
+            });
+        };
+        
+        function updateSliderLabel(lat) {
+            const abs = Math.abs(lat).toFixed(1);
+            const hemi = lat >= 0 ? 'N' : 'S';
+            latLabel.textContent = `Latitude: ${abs}°${hemi}`;
+        }
+        
+        // If geolocation hasn't resolved yet, wait for it
+        if (app.geolocation.latitude !== undefined) {
+            setInitialSlider();
+        } else {
+            // Hook into the geolocation callback
+            const originalCallback = app.geolocation.onLocationChange;
+            app.geolocation.onLocationChange = (lat, lon) => {
+                if (originalCallback) originalCallback(lat, lon);
+                setInitialSlider();
+                // Restore original callback
+                app.geolocation.onLocationChange = originalCallback;
+            };
+        }
+    }
 });

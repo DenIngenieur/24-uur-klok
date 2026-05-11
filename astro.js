@@ -21,7 +21,6 @@ const Angle = {
 class JulianDate {
     constructor(input) {
         if (input instanceof Date) {
-            // Date to JD (UTC)
             const millis = input.getTime();
             this.jd = millis / 86400000 + 2440587.5;
         } else if (typeof input === 'number') {
@@ -53,43 +52,85 @@ class JulianDate {
         const C3 = 0.00029 * Math.sin(3 * Mrad);
         return C1 + C2 + C3;
     }
+
+    sunMeanLongitude() {
+        const T = this.julianCenturies();
+        return Angle.normDeg(280.46646 + 36000.76983 * T + 0.0003032 * T * T);
+    }
 }
 
 // ========== SUN POSITION ==========
 class SunPosition {
     constructor(jd, lat, lon) {
         this.jd = jd;
-        this.latRad = Angle.degToRad(lat);
-        this.lonRad = Angle.degToRad(lon);
+        this.lat = lat;
+        this.lon = lon;
+
+        // Public outputs
+        this.declination = null;
+        this.rightAscension = null;
+        this.localSiderealTime = null;
+        this.gmst = null;
+
         this._compute();
     }
 
     _compute() {
-        const M = this.jd.sunMeanAnomaly();
+        const n = this.jd.daysSinceJ2000();
+        const L = this.jd.sunMeanLongitude();
         const C = this.jd.sunEquationOfCenter();
-        let lambda = M + C + 180.0;
+
+        // True ecliptic longitude
+        let lambda = L + C;
         lambda = Angle.normDeg(lambda);
         const lambdaRad = Angle.degToRad(lambda);
+
+        // Obliquity
         const T = this.jd.julianCenturies();
         let epsilon = 23.439 - 0.0000004 * T;
         epsilon = Angle.normDeg(epsilon);
         const epsRad = Angle.degToRad(epsilon);
+
+        // Declination
         const sinDec = Math.sin(lambdaRad) * Math.sin(epsRad);
-        this.decRad = Math.asin(Math.min(1, Math.max(-1, sinDec)));
-        let alphaRad = Math.atan2(Math.cos(epsRad) * Math.sin(lambdaRad), Math.cos(lambdaRad));
+        const decRad = Math.asin(Math.min(1, Math.max(-1, sinDec)));
+        this.declination = Angle.radToDeg(decRad);
+
+        // Right Ascension
+        let alphaRad = Math.atan2(
+            Math.cos(epsRad) * Math.sin(lambdaRad),
+            Math.cos(lambdaRad)
+        );
         alphaRad = Angle.normRad(alphaRad);
-        this.alphaRad = alphaRad;
-        let GMST = 280.46061837 + 360.98564736629 * this.jd.daysSinceJ2000();
+        this.rightAscension = Angle.radToDeg(alphaRad);
+
+        // GMST
+        let GMST = 280.46061837 + 360.98564736629 * n;
         GMST = Angle.normDeg(GMST);
+        this.gmst = GMST;
+
+        // Local Sidereal Time
         const GMSTrad = Angle.degToRad(GMST);
-        this.LSTrad = Angle.normRad(GMSTrad + this.lonRad);
+        const lonRad = Angle.degToRad(this.lon);
+        this.localSiderealTime = Angle.radToDeg(Angle.normRad(GMSTrad + lonRad));
     }
 
+    /**
+     * Calculate the Sun's altitude at this position and time.
+     * @returns {number} Altitude in degrees (positive = above horizon, negative = below).
+     */
     altitude() {
-        let Hrad = this.LSTrad - this.alphaRad;
+        const latRad = Angle.degToRad(this.lat);
+        const decRad = Angle.degToRad(this.declination);
+        const lstRad = Angle.degToRad(this.localSiderealTime);
+        const alphaRad = Angle.degToRad(this.rightAscension);
+
+        let Hrad = lstRad - alphaRad;
         Hrad = Angle.normRad(Hrad);
-        const sinAlt = Math.sin(this.latRad) * Math.sin(this.decRad) +
-                       Math.cos(this.latRad) * Math.cos(this.decRad) * Math.cos(Hrad);
+        this.hourAngle = Angle.radToDeg(Hrad);
+
+        const sinAlt = Math.sin(latRad) * Math.sin(decRad) +
+                       Math.cos(latRad) * Math.cos(decRad) * Math.cos(Hrad);
         const altRad = Math.asin(Math.min(1, Math.max(-1, sinAlt)));
         return Angle.radToDeg(altRad);
     }
@@ -108,16 +149,37 @@ class SolarDay {
         const noonUTC = Date.UTC(this.date.getFullYear(), this.date.getMonth(), this.date.getDate(), 12, 0, 0);
         const jd = noonUTC / 86400000 + 2440587.5;
         const getTimes = (depression) => this._sunriseSunset(jd, this.lat, this.lon, depression);
+        
         const riseSet = getTimes(0.833);
         this.sunrise = riseSet.rise;
         this.sunset = riseSet.set;
         this.isPolarDay = riseSet.isPolarDay;
         this.isPolarNight = riseSet.isPolarNight;
+        
         for (const [name, angle] of [['civil', 6], ['nautical', 12], ['astronomical', 18]]) {
             const times = getTimes(angle);
             this[`${name}Dawn`] = times.rise;
             this[`${name}Dusk`] = times.set;
             this[`${name}TwilightMissing`] = (!times.rise && !times.set);
+        }
+        
+        // Solar noon and nadir
+        if (this.sunrise && this.sunset) {
+            const riseH = this.sunrise.getUTCHours() + this.sunrise.getUTCMinutes()/60 + this.sunrise.getUTCSeconds()/3600;
+            const setH = this.sunset.getUTCHours() + this.sunset.getUTCMinutes()/60 + this.sunset.getUTCSeconds()/3600;
+            
+            let noonH = (riseH + setH) / 2;
+            if (setH < riseH) {
+                noonH += 12;
+                if (noonH >= 24) noonH -= 24;
+            }
+            
+            const midnightUTC = Date.UTC(this.date.getFullYear(), this.date.getMonth(), this.date.getDate(), 0, 0, 0);
+            this.solarNoon = new Date(midnightUTC + noonH * 3600000);
+            this.nadir = new Date(midnightUTC + ((noonH + 12) % 24) * 3600000);
+        } else {
+            this.solarNoon = null;
+            this.nadir = null;
         }
     }
 
