@@ -88,20 +88,33 @@ function lerpHSL(color1, color2, t) {
 
 // ========== TIME SOURCE ==========
 class TimeSource {
+    constructor() {
+        this.dayOfYearOverride = null;  // null = use real today
+    }
+    
     getCurrentTime() {
         const now = new Date();
+        
+        let date;
+        if (this.dayOfYearOverride !== null) {
+            date = new Date(now.getFullYear(), 0, this.dayOfYearOverride);
+            date.setHours(now.getHours(), now.getMinutes(), now.getSeconds(), now.getMilliseconds());
+        } else {
+            date = now;
+        }
+        
         return {
-            date: now,
-            timestamp: now.getTime(),
-            year: now.getFullYear(),
-            month: now.getMonth(),
-            day: now.getDate(),
-            hours: now.getHours(),
-            minutes: now.getMinutes(),
-            seconds: now.getSeconds(),
-            decimalHours: now.getHours() + now.getMinutes()/60 + now.getSeconds()/3600,
-            decimalMinutes: now.getMinutes() + now.getSeconds()/60,
-            dateKey: `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`
+            date: date,
+            timestamp: date.getTime(),
+            year: date.getFullYear(),
+            month: date.getMonth(),
+            day: date.getDate(),
+            hours: date.getHours(),
+            minutes: date.getMinutes(),
+            seconds: date.getSeconds(),
+            decimalHours: date.getHours() + date.getMinutes()/60 + date.getSeconds()/3600,
+            decimalMinutes: date.getMinutes() + date.getSeconds()/60,
+            dateKey: `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`
         };
     }
 }
@@ -246,16 +259,16 @@ class MoonRenderer {
 class MoonPhaseDisplay {
     constructor() {
         this.element = document.getElementById('moonPhase');
-        this.lastDisplayedPhase = null;
+        this.lastDisplay = null;  // changed from lastDisplayedPhase
     }
     update(phaseData) {
         if (!this.element || !phaseData) return;
-        // Only update DOM if phase actually changed
-        if (this.lastDisplayedPhase === phaseData.phaseName) return;
-        this.lastDisplayedPhase = phaseData.phaseName;
-        
         const percent = Math.round(phaseData.illumination);
-        this.element.textContent = `${phaseData.symbol} ${phaseData.phaseName} (${percent}%)`;
+        const displayString = `${phaseData.symbol} ${phaseData.phaseName} (${percent}%)`;
+        // Only update DOM if phase actually changed
+        if (this.lastDisplay === displayString) return;
+        this.lastDisplay = displayString;
+        this.element.textContent = displayString;
     }
 }
 
@@ -707,6 +720,54 @@ class ClockApp {
         };
         this.geolocation.init();
         this._startAnimation();
+
+        // --- Day of year slider ---
+        const daySlider = document.getElementById('daySlider');
+        const dayLabel = document.getElementById('dayLabel');
+        const dayReset = document.getElementById('dayReset');
+
+        if (daySlider && dayLabel && dayReset) {
+            const updateDaySliderRange = () => {
+                const now = new Date();
+                const maxDay = this._isLeapYear(now.getFullYear()) ? 366 : 365;
+                const todayDay = this._getDayOfYear(now);
+                
+                daySlider.max = maxDay;
+                
+                // Only update value if we're in "today" mode
+                if (this.timeSource.dayOfYearOverride === null) {
+                    daySlider.value = todayDay;
+                    dayLabel.textContent = `Day: ${todayDay}`;
+                }
+            };
+            
+            // Set initial range
+            updateDaySliderRange();
+            
+            daySlider.addEventListener('input', () => {
+                const dayOfYear = parseInt(daySlider.value);
+                this.timeSource.dayOfYearOverride = dayOfYear;
+                dayLabel.textContent = `Day: ${dayOfYear}`;
+                // Force gradient/moon regeneration
+                this.gradientCache = null;
+                this.cacheKey = null;
+                if (this.moonRenderer) {
+                    this.moonRenderer.cacheDate = null;
+                }
+            });
+            
+            dayReset.addEventListener('click', () => {
+                this.timeSource.dayOfYearOverride = null;
+                const todayDay = this._getDayOfYear(new Date());
+                daySlider.value = todayDay;
+                dayLabel.textContent = `Day: ${todayDay}`;
+                this.gradientCache = null;
+                this.cacheKey = null;
+                if (this.moonRenderer) {
+                    this.moonRenderer.cacheDate = null;
+                }
+            });
+        }
     }
     
     _resize() {
@@ -800,6 +861,24 @@ class ClockApp {
         
         // Single time source for entire frame
         const timeData = this.timeSource.getCurrentTime();
+
+        // Update day slider max if year changed (handles leap year transitions)
+        const daySlider = document.getElementById('daySlider');
+        const dayLabel = document.getElementById('dayLabel');
+        if (daySlider) {
+            const maxDay = this._isLeapYear(timeData.year) ? 366 : 365;
+            if (daySlider.max != maxDay) {  // loose equality to handle string/number
+                daySlider.max = maxDay;
+            }
+            // If in "today" mode, keep slider synced with actual day
+            if (this.timeSource.dayOfYearOverride === null) {
+                const todayDay = this._getDayOfYear(new Date());
+                if (daySlider.value != todayDay) {
+                    daySlider.value = todayDay;
+                    if (dayLabel) dayLabel.textContent = `Day: ${todayDay}`;
+                }
+            }
+        }
         
         this.timestamp.update(timeData);
         
@@ -872,6 +951,15 @@ class ClockApp {
         }
     }
         
+    _isLeapYear(year) {
+        return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+    }
+
+    _getDayOfYear(date) {
+        const startOfYear = new Date(date.getFullYear(), 0, 1);
+        return Math.floor((date - startOfYear) / (24 * 3600 * 1000)) + 1;
+    }
+           
     setLatitude(lat) {
         this.geolocation.latitude = lat;
         this._invalidateGradient();
@@ -886,7 +974,6 @@ class ClockApp {
     }
 }
 
-// ========== START APPLICATION ==========
 // ========== START APPLICATION ==========
 window.addEventListener('load', () => {
     const canvas = document.getElementById('clockCanvas');

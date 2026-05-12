@@ -41,7 +41,7 @@
     transition: color 0.2s;
 }
 
-.latitude-control {
+.slider-control {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -53,7 +53,7 @@
     font-family: 'Segoe UI', system-ui, sans-serif;
 }
 
-.latitude-control label {
+.slider-control label {
     font-size: 0.8rem;
     font-weight: 500;
     color: #ccc;
@@ -64,14 +64,14 @@
     user-select: none;
 }
 
-.latitude-control input[type="range"] {
+.slider-control input[type="range"] {
     width: 160px;
     accent-color: #4a6e8c;
     cursor: pointer;
     background: transparent;
 }
 
-.latitude-control button {
+.slider-control button {
     font-size: 0.75rem;
     padding: 4px 12px;
     border-radius: 20px;
@@ -84,7 +84,7 @@
     transition: background 0.15s;
 }
 
-.latitude-control button:hover {
+.slider-control button:hover {
     background: rgba(255, 255, 255, 0.18);
 }
 
@@ -98,18 +98,18 @@
         font-size: 0.65rem;
         padding: 4px 10px;
     }
-    .latitude-control {
+    .slider-control {
         padding: 5px 10px;
         gap: 6px;
     }
-    .latitude-control label {
+    .slider-control label {
         font-size: 0.7rem;
         min-width: 80px;
     }
-    .latitude-control input[type="range"] {
+    .slider-control input[type="range"] {
         width: 100px;
     }
-    .latitude-control button {
+    .slider-control button {
         font-size: 0.65rem;
         padding: 3px 8px;
     }

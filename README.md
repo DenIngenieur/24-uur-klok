@@ -15,6 +15,7 @@ Zie het ding in werking: [naar de klok](https://deningenieur.github.io/24-uur-kl
 - **Zonsopgang / zonsondergang** bepaalt een vloeiend kleurenverloop op de wijzerplaat: diepblauwe nacht → paarse schemeringen → rozig ochtendgloren → warm gouden dag → oranje zonsondergang → en weer terug
 - **Schijngestalten van de maan** in het midden van de wijzerplaat, inclusief parallactische rotatie op basis van je breedtegraad
 - **Breedtegraad-schuifregelaar** – verken hoe de dag en nacht veranderen van pool tot pool, in real-time
+- **Dag-van-het-jaar schuifregelaar** – doorloop het volledige jaar en zie hoe de daglengte, schemeringen en maanfase mee veranderen met de seizoenen. De standaardpositie is vandaag, met een resetknop om altijd terug te keren.
 - **Holoceen kalender** – huidig jaar + 10.000 (bijv. 12026 HE)
 - **Uurwijzer-tracker** – een stip die het huidige uur volgt langs de rand
 
@@ -41,41 +42,38 @@ Waarom 10.000? Het Holoceen-tijdperk begon ~11.700 jaar geleden — toen de IJst
 - Vraagt locatie (toestemming) voor nauwkeurige zonsopkomst, zonsondergang en alle schemeringen
 - Zonder locatie → valt terug op 50.81°N, 3.11°O (Vlaanderen, België)
 - **Breedtegraad-schuifregelaar** – sleep van 90°N naar 90°Z om te zien hoe dag/nacht en de maanoriëntatie veranderen
-- Resetknop om terug te keren naar je echte locatie
+- **Dag-van-het-jaar schuifregelaar** – sleep van 1 januari tot 31 december om de seizoenen te doorlopen
+- Resetknoppen om terug te keren naar je echte locatie en de echte datum
 - Maanstand wordt berekend op basis van een referentie-nieuwe-maan (17 april 2026)
 - Toont maanfase, symbool en verlichtingspercentage
 - Werkt correct op alle breedtegraden, inclusief pooldag, poolnacht, en gedeeltelijke schemeringen
+- Houdt rekening met schrikkeljaren (366 dagen) en zomer-/wintertijd
 
-## 🧩 Technisch
+## 📁 Bestanden en pagina's
 
-- Pure HTML/CSS/JS – geen externe bibliotheken
-- **720 wigjes** (`gradientSteps: 720` in CONFIG, ofwel 0,5° per stap) voor vloeiende kleurovergangen zonder zichtbare randen
-- **HSL-kleurinterpolatie** tussen ankerpunten (diepste nacht, astronomische/náutische/civiele schemering, zonsopgang/ondergang, middagzon, pooldag)
-- Nachtkleur past zich automatisch aan wanneer schemeringen wegvallen op hoge breedtegraden
-- Zonnenadir bepaald via `SunPosition` voor nauwkeurige nachtkleur bij gedeeltelijke schemeringen
-- Maanfase, wijzers, gradiënt en tracker worden getekend op een HTML5-canvas
-- Past zich aan elke schermgrootte aan (schaalt correct op én neer)
-- Verloop en maanfase worden één keer per dag berekend en gecached
-- Single Time Source architectuur – één `Date` instantie per frame
-- DOM-updates getrotteleerd (tijdstempel per seconde, maanfase per dag)
-- Animatielus pauzeert automatisch wanneer tabblad niet zichtbaar is
-- Canvas state management met `save()`/`restore()` om shadow/style lekkage te voorkomen
+Het project bevat drie HTML-pagina's met elk een eigen functie:
 
-## 📁 Bestanden
+- **`index.html`** – de hoofdklok. Toont de 24-uurs wijzerplaat met dag/nacht-verloop, maanfase, Holoceen-tijdstempel, en schuifregelaars voor breedtegraad en dag van het jaar.
+- **`astro.html`** – de zonnecalculator. Geeft voor een opgegeven datum en locatie de precieze tijden van zonsopgang, zonsondergang en alle drie de schemeringen (civiel, nautisch, astronomisch). Toont ook de actuele zonnepositie (altitude, declinatie, rechte klimming, uurhoek) en de positie om 12:00 UTC. Handig voor fotografen, astronomen, of gewoon uit nieuwsgierigheid.
+- **`moonphase.html`** – de maanfase-visualisator. Een interactieve demo die toont hoe de maan eruitziet bij een bepaalde verlichtingsgraad en breedtegraad, met parallactische rotatie. Handig om het maanmodel los van de klok te begrijpen en te testen.
 
-- `index.html` – de klokpagina
-- `style.css` – pagina-layout (body, container)
-- `clock.css` – klok-specifieke stijl (canvas, labels, schuifregelaar)
-- `astro.js` – astronomische berekeningen (Juliaanse dag, zonspositie, zonsopkomst/ondergang, schemeringen, zonnemiddag/nadir)
-- `moonphase.js` – maanfase-berekeningen (fase, verlichting, symbool)
-- `clock.js` – alle tekenlogica (gradiënt, maan, wijzerplaat, wijzers, tracker, breedtegraad-schuifregelaar)
+De JavaScript-logica is verdeeld over drie bestanden:
+
+- **`astro.js`** – astronomische berekeningen (Juliaanse dag, zonspositie, zonsopkomst/ondergang, schemeringen, zonnemiddag/nadir)
+- **`moonphase.js`** – maanfase-berekeningen (fase, verlichting, symbool)
+- **`clock.js`** – alle tekenlogica voor de klok (gradiënt, maan, wijzerplaat, wijzers, tracker, schuifregelaars)
+
+En de opmaak:
+
+- **`style.css`** – pagina-layout (body, container)
+- **`clock.css`** – klok-specifieke stijl (canvas, labels, schuifregelaars)
 
 ## 🚀 Live gebruiken
 
 1. Download de bestanden in één map.
 2. Open `index.html` in een moderne browser (Chrome, Firefox, Edge).
 3. Geef toestemming voor locatie (voor echte zonsopkomst/ondergang).
-4. Gebruik de schuifregelaar om breedtegraden te verkennen.
+4. Gebruik de schuifregelaars om breedtegraden en dagen te verkennen.
 5. Klaar – de klok draait.
 
 ## 🎨 Configuratie
@@ -113,6 +111,7 @@ solarNoon:     { h: 50,  s: 40, l: 75 },  // middagzon
 polarDay:      { h: 51, s: 100, l: 70 }   // pooldag
 ```
 
+
 # 🕰️ Holocene Clock – 24h counterclockwise, with sun, moon and 10,000 years of history
 
 A remarkable clock that runs **counterclockwise**, displays **24 hours**, and shows the position of sun and moon – based on your location and real astronomy.
@@ -128,6 +127,7 @@ See it in action: [to the clock](https://deningenieur.github.io/24-uur-klok/)
 - **Sunrise/sunset** creates a smooth colour gradient on the dial: deep blue night → purple twilights → rosy dawn → warm golden day → orange sunset → and back again
 - **Moon phases** displayed in the centre of the dial, including parallactic rotation based on your latitude
 - **Latitude slider** – explore how day and night change from pole to pole, in real-time
+- **Day-of-year slider** – scrub through the entire year and watch day length, twilights, and moon phases shift with the seasons. Defaults to today, with a reset button to always return.
 - **Holocene calendar** – current year + 10,000 (e.g. 12026 HE)
 - **Hour tracker** – a dot that follows the current hour along the edge
 
@@ -154,41 +154,38 @@ Why 10,000? The Holocene Epoch began ~11,700 years ago — when the Ice Age ende
 - Requests location (permission) for accurate sunrise, sunset and all twilights
 - Without location → falls back to 50.81°N, 3.11°E (Flanders, Belgium)
 - **Latitude slider** – drag from 90°N to 90°S to see how day/night and moon orientation change
-- Reset button to return to your real location
+- **Day-of-year slider** – drag from January 1 to December 31 to travel through the seasons
+- Reset buttons to return to your real location and today's date
 - Moon phase calculated using a reference new moon (17 April 2026)
 - Displays moon phase name, symbol and illumination percentage
 - Works correctly at all latitudes, including polar day, polar night, and partial twilights
+- Accounts for leap years (366 days) and daylight saving time
 
-## 🧩 Technical
+## 📁 Files and pages
 
-- Pure HTML/CSS/JS – no external libraries
-- **720 wedges** (`gradientSteps: 720` in CONFIG, or 0.5° per step) for smooth colour gradients with no visible banding
-- **HSL colour interpolation** between anchor points (deepest night, astronomical/nautical/civil twilight, sunrise/sunset, solar noon, polar day)
-- Night colour automatically adapts when twilights disappear at high latitudes
-- Solar nadir computed via `SunPosition` for accurate night colour during partial twilights
-- Moon phase, hands, gradient and tracker drawn on an HTML5 canvas
-- Adapts to any screen size (scales both up and down correctly)
-- Gradient and moon phase calculated once per day and cached
-- Single Time Source architecture – one `Date` instance per frame
-- DOM updates throttled (timestamp per second, moon phase per day)
-- Animation loop pauses automatically when tab is not visible
-- Canvas state management with `save()`/`restore()` to prevent shadow/style leakage
+The project contains three HTML pages, each with its own purpose:
 
-## 📁 Files
+- **`index.html`** – the main clock. Shows the 24-hour dial with day/night gradient, moon phase, Holocene timestamp, and sliders for latitude and day of year.
+- **`astro.html`** – the solar calculator. For a given date and location, shows precise sunrise, sunset and all three twilight times (civil, nautical, astronomical). Also displays current sun position (altitude, declination, right ascension, hour angle) and the position at 12:00 UTC. Useful for photographers, astronomers, or plain curiosity.
+- **`moonphase.html`** – the moon phase visualiser. An interactive demo showing how the moon appears at a given illumination percentage and latitude, with parallactic rotation. Useful for understanding and testing the moon model separately from the clock.
 
-- `index.html` – the clock page
-- `style.css` – page layout (body, container)
-- `clock.css` – clock-specific styling (canvas, labels, slider)
-- `astro.js` – astronomical calculations (Julian date, sun position, sunrise/sunset, twilights, solar noon/nadir)
-- `moonphase.js` – moon phase calculations (phase, illumination, symbol)
-- `clock.js` – all drawing logic (gradient, moon, dial, hands, tracker, latitude slider)
+The JavaScript logic is split across three files:
+
+- **`astro.js`** – astronomical calculations (Julian date, sun position, sunrise/sunset, twilights, solar noon/nadir)
+- **`moonphase.js`** – moon phase calculations (phase, illumination, symbol)
+- **`clock.js`** – all clock drawing logic (gradient, moon, dial, hands, tracker, sliders)
+
+And the styling:
+
+- **`style.css`** – page layout (body, container)
+- **`clock.css`** – clock-specific styling (canvas, labels, sliders)
 
 ## 🚀 Use it live
 
 1. Download the files into one folder.
 2. Open `index.html` in a modern browser (Chrome, Firefox, Edge).
 3. Grant location permission (for real sunrise/sunset times).
-4. Use the slider to explore different latitudes.
+4. Use the sliders to explore different latitudes and days.
 5. Done – the clock is running.
 
 ## 🎨 Configuration
