@@ -15,7 +15,7 @@ Zie het ding in werking: [naar de klok](https://deningenieur.github.io/24-uur-kl
 - **Zonsopgang / zonsondergang** bepaalt een vloeiend kleurenverloop op de wijzerplaat: diepblauwe nacht → paarse schemeringen → rozig ochtendgloren → warm gouden dag → oranje zonsondergang → en weer terug
 - **Schijngestalten van de maan** in het midden van de wijzerplaat, inclusief parallactische rotatie op basis van je breedtegraad
 - **Breedtegraad-schuifregelaar** – verken hoe de dag en nacht veranderen van pool tot pool, in real-time
-- **Dag-van-het-jaar schuifregelaar** – doorloop het volledige jaar en zie hoe de daglengte, schemeringen en maanfase mee veranderen met de seizoenen. De standaardpositie is vandaag, met een resetknop om altijd terug te keren.
+- **Dag-van-het-jaar schuifregelaar** – doorloop het volledige jaar en zie hoe de daglengte, schemeringen en maanfase mee veranderen met de seizoenen. De overgang van zomer- naar wintertijd (en omgekeerd) is als een plotse sprong in de schemering zichtbaar. De standaardpositie is vandaag, met een resetknop om altijd terug te keren.
 - **Holoceen kalender** – huidig jaar + 10.000 (bijv. 12026 HE)
 - **Uurwijzer-tracker** – een stip die het huidige uur volgt langs de rand
 
@@ -127,7 +127,7 @@ See it in action: [to the clock](https://deningenieur.github.io/24-uur-klok/)
 - **Sunrise/sunset** creates a smooth colour gradient on the dial: deep blue night → purple twilights → rosy dawn → warm golden day → orange sunset → and back again
 - **Moon phases** displayed in the centre of the dial, including parallactic rotation based on your latitude
 - **Latitude slider** – explore how day and night change from pole to pole, in real-time
-- **Day-of-year slider** – scrub through the entire year and watch day length, twilights, and moon phases shift with the seasons. Defaults to today, with a reset button to always return.
+- **Day-of-year slider** – scrub through the entire year and watch day length, twilights, and moon phases shift with the seasons. The daylight saving time transitions appear as sudden jumps in the twilight bands — a quiet reminder that the sun doesn't care about our clocks. Defaults to today, with a reset button to always return.
 - **Holocene calendar** – current year + 10,000 (e.g. 12026 HE)
 - **Hour tracker** – a dot that follows the current hour along the edge
 
