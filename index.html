@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <!-- TRANSLATION EXAMPLE (DUTCH)
+    <title>24-uurs Tegen de Klok in Klok | Holoceen Tijdperk</title>
+    -->
     <title>24h Counterclockwise Clock | Holocene Era</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="clock.css"> 
@@ -15,6 +18,9 @@
         
         <!-- Latitude explorer -->
         <div class="slider-control" id="latitudeControl">
+            <!-- TRANSLATION EXAMPLE (DUTCH)
+            <label for="latSlider" id="latLabel">Breedtegraad: 50.8°N</label>
+            -->
             <label for="latSlider" id="latLabel">Latitude: 50.8°N</label>
             <input type="range" id="latSlider" min="-90" max="90" value="50.8" step="0.1">
             <button id="latReset">Reset</button>
@@ -22,8 +28,14 @@
 
         <!-- Day slider -->
         <div class="slider-control" id="dayControl">
+            <!-- TRANSLATION EXAMPLE (DUTCH)
+            <label for="daySlider" id="dayLabel">Dag: 172</label>
+            -->
             <label for="daySlider" id="dayLabel">Day: 172</label>
             <input type="range" id="daySlider" min="1" max="365" value="172" step="1">
+            <!-- TRANSLATION EXAMPLE (DUTCH)
+            <button id="dayReset">Vandaag</button>
+            -->
             <button id="dayReset">Today</button>
         </div>
         
@@ -32,7 +44,6 @@
         </div>
     </div>
     
-    <script src="moonphase.js"></script>
     <script src="astro.js"></script>
     <script src="clock.js"></script>
 </body>

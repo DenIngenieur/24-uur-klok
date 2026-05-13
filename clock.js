@@ -28,7 +28,56 @@ const CONFIG = {
     moonDarkColor: "#1a1d2e",
     moonLightColor: "#fff8e0",
     moonBorderColor: "rgba(255,255,240,0.3)",
-    
+
+    // Translations
+    moonPhaseNames: {
+        // "New Moon": "Nieuwe Maan",
+        "New Moon": "New Moon",
+        // "Waxing Crescent": "Wassende Halve Maan",
+        "Waxing Crescent": "Waxing Crescent",
+        // "First Quarter": "Eerste Kwartier",
+        "First Quarter": "First Quarter",
+        // "Waxing Gibbous": "Wassende Maan",
+        "Waxing Gibbous": "Waxing Gibbous",
+        // "Full Moon": "Volle Maan",
+        "Full Moon": "Full Moon",
+        // "Waning Gibbous": "Afnemende Maan",
+        "Waning Gibbous": "Waning Gibbous",
+        // "Last Quarter": "Laatste Kwartier",
+        "Last Quarter": "Last Quarter",
+        // "Waning Crescent": "Afnemende Halve Maan"
+        "Waning Crescent": "Waning Crescent"
+    },
+    // translation location-related messages
+    location: {
+        // "geolocationNotSupported": "🌐 Geolocatie wordt niet ondersteund – standaardwaarde 50.81°N, 3.11°E gebruikt",
+        geolocationNotSupported: "🌐 Geolocation not supported – using fallback 50.81°N, 3.11°E",
+        // "requestingLocation": "📍 Locatie wordt opgehaald...",
+        requestingLocation: "📍 Requesting location...",
+        // "geolocationDenied": "⚠️ Locatietoegang geweigerd – standaardwaarde 50.81°N, 3.11°E gebruikt",
+        geolocationDenied: "⚠️ Geolocation denied – using fallback 50.81°N, 3.11°E",
+        fallbackCoordinates: { latitude: 50.81, longitude: 3.11 },
+        fallbackCoordinatesText: "50.81°N, 3.11°E"
+    },
+    hemisphere: {
+        // "northern": "Noordelijk",
+        northern: "Northern",
+        // "southern": "Zuidelijk"
+        southern: "Southern"
+    },
+    coordinateDisplay: {
+        // "format": "🌞 {hemisphere} halfrond | {latitude}° {longitude}°"
+        format: "🌞 {hemisphere} hemisphere | {latitude}° {longitude}°"
+    },
+    // labels for feedback. Change these value to translate the UI label.
+    labels: {
+        // day: "Dag",
+        day: "Day",
+        // latitude: "Breedtegraad"
+        latitude: "Latitude"
+    },
+
+    // Colours to choose :-)
     colors: {
         background: "#0a0e1a",
         dialFace: "#111625",
@@ -152,24 +201,31 @@ class GeolocationHandler {
     init() {
         const statusEl = document.getElementById('statusMessage');
         if (!navigator.geolocation) {
-            if (statusEl) statusEl.textContent = "🌐 Geolocation not supported – using fallback 50.81°N, 3.11°E";
+            if (statusEl) statusEl.textContent = CONFIG.location.geolocationNotSupported;
             return;
         }
-        if (statusEl) statusEl.textContent = "📍 Requesting location...";
+        if (statusEl) statusEl.textContent = CONFIG.location.requestingLocation;
         navigator.geolocation.getCurrentPosition(
             (pos) => {
                 this.latitude = pos.coords.latitude;
                 this.longitude = pos.coords.longitude;
-                const hem = this.latitude >= 0 ? "Northern" : "Southern";
-                if (statusEl) statusEl.textContent = `🌞 ${hem} hemisphere | ${this.latitude.toFixed(1)}° ${this.longitude.toFixed(1)}°`;
+                const hem = this.latitude >= 0 ? CONFIG.hemisphere.northern : CONFIG.hemisphere.southern;
+                if (statusEl) statusEl.textContent = CONFIG.coordinateDisplay.format
+                    .replace('{hemisphere}', hem)
+                    .replace('{latitude}', this.latitude.toFixed(1))
+                    .replace('{longitude}', this.longitude.toFixed(1));
                 if (this.onLocationChange) this.onLocationChange(this.latitude, this.longitude);
             },
             (err) => {
-                if (statusEl) statusEl.textContent = "⚠️ Geolocation denied – using fallback 50.81°N, 3.11°E";
-                if (this.onLocationChange) this.onLocationChange(40, 0);
+                if (statusEl) statusEl.textContent = CONFIG.location.geolocationDenied;
+                if (this.onLocationChange) this.onLocationChange(
+                    CONFIG.location.fallbackCoordinates.latitude,
+                    CONFIG.location.fallbackCoordinates.longitude
+                );
             }
         );
     }
+
     getLocationKey() {
         const prec = CONFIG.locationPrecision;
         return `${this.latitude.toFixed(prec)}/${this.longitude.toFixed(prec)}`;
@@ -264,7 +320,8 @@ class MoonPhaseDisplay {
     update(phaseData) {
         if (!this.element || !phaseData) return;
         const percent = Math.round(phaseData.illumination);
-        const displayString = `${phaseData.symbol} ${phaseData.phaseName} (${percent}%)`;
+        //const displayString = `${phaseData.symbol} ${phaseData.phaseName} (${percent}%)`;
+        const displayString = `${phaseData.symbol} ${CONFIG.moonPhaseNames[phaseData.phaseName]} (${percent}%)`;
         // Only update DOM if phase actually changed
         if (this.lastDisplay === displayString) return;
         this.lastDisplay = displayString;
@@ -367,7 +424,7 @@ class ClockDial {
         const r = this.radius * 0.7;
         
         ctx.save();
-        ctx.font = `bold ${Math.floor(this.radius * 0.05)}px "Segoe UI", monospace`;
+        ctx.font = `bold ${Math.floor(this.radius * 0.08)}px "Segoe UI", monospace`;
         ctx.fillStyle = this.config.colors.minuteMarkers;
         ctx.shadowBlur = 2;
         ctx.shadowColor = "rgba(0,0,0,0.8)";
@@ -737,7 +794,7 @@ class ClockApp {
                 // Only update value if we're in "today" mode
                 if (this.timeSource.dayOfYearOverride === null) {
                     daySlider.value = todayDay;
-                    dayLabel.textContent = `Day: ${todayDay}`;
+                    dayLabel.textContent = `${CONFIG.labels.day}: ${todayDay}`;
                 }
             };
             
@@ -747,7 +804,7 @@ class ClockApp {
             daySlider.addEventListener('input', () => {
                 const dayOfYear = parseInt(daySlider.value);
                 this.timeSource.dayOfYearOverride = dayOfYear;
-                dayLabel.textContent = `Day: ${dayOfYear}`;
+                dayLabel.textContent = `${CONFIG.labels.day}: ${dayOfYear}`;
                 // Force gradient/moon regeneration
                 this.gradientCache = null;
                 this.cacheKey = null;
@@ -760,7 +817,7 @@ class ClockApp {
                 this.timeSource.dayOfYearOverride = null;
                 const todayDay = this._getDayOfYear(new Date());
                 daySlider.value = todayDay;
-                dayLabel.textContent = `Day: ${todayDay}`;
+                dayLabel.textContent = `${CONFIG.labels.day}: ${todayDay}`;
                 this.gradientCache = null;
                 this.cacheKey = null;
                 if (this.moonRenderer) {
@@ -1020,7 +1077,7 @@ window.addEventListener('load', () => {
         function updateSliderLabel(lat) {
             const abs = Math.abs(lat).toFixed(1);
             const hemi = lat >= 0 ? 'N' : 'S';
-            latLabel.textContent = `Latitude: ${abs}°${hemi}`;
+            latLabel.textContent = `${CONFIG.labels.latitude}: ${abs}°${hemi}`;
         }
         
         // If geolocation hasn't resolved yet, wait for it
