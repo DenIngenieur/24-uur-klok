@@ -268,7 +268,7 @@ class MoonRenderer {
         ctx.save();
         ctx.translate(this.cx, this.cy);
         
-        // Apply parallactic rotation based on latitude (same as your example)
+        // Apply parallactic rotation based on latitude (same as our example)
         let rotation = (lat * Math.PI / 180);
         ctx.rotate(rotation);
         
