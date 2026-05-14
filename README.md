@@ -3,6 +3,7 @@
 Een bijzondere klok die **tegen de klok in loopt**, **24 uur** toont, en de stand van de zon en maan laat zien – gebaseerd op jouw locatie en de echte sterrenkunde.
 
 Zie het ding in werking: [naar de klok](https://deningenieur.github.io/24-uur-klok/)
+
 Of bekijk de [video](https://www.youtube.com/watch?v=Vago5uCc7qQ) of de [short](https://www.youtube.com/shorts/BFC3ueQ0R5I).
 
 _🇬🇧 English version below_
@@ -199,6 +200,7 @@ const CONFIG = {
 A remarkable clock that runs **counterclockwise**, displays **24 hours**, and shows the position of sun and moon – based on your location and real astronomy.
 
 See it in action: [to the clock](https://deningenieur.github.io/24-uur-klok/)
+
 Or look at the [video](https://www.youtube.com/watch?v=l6dikXuCVhc) or the [short](https://www.youtube.com/shorts/N17LtPc7U8w).
 
 * * *
