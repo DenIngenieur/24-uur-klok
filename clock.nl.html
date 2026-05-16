@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>24-uurs Tegen de Klok in Klok | Holoceen Tijdperk</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="clock.css"> 
+</head>
+<body>
+    <div class="clock-container">
+        <canvas id="clockCanvas" width="520" height="520"></canvas>
+        <div class="clock-label" id="timestamp">HE 12000/00/00 00:00:00</div>
+        <div class="clock-label" id="moonPhase">🌑 New Moon</div>
+        
+        <!-- Latitude explorer -->
+        <div class="slider-control" id="latitudeControl">
+            <label for="latSlider" id="latLabel">Breedtegraad: 50.8°N</label>
+            <input type="range" id="latSlider" min="-90" max="90" value="50.8" step="0.1">
+            <button id="latReset">Reset</button>
+        </div>
+
+        <!-- Day slider -->
+        <div class="slider-control" id="dayControl">
+            <label for="daySlider" id="dayLabel">Dag: 172</label>
+            <input type="range" id="daySlider" min="1" max="365" value="172" step="1">
+            <button id="dayReset">Vandaag</button>
+        </div>
+        
+        <div class="clock-status" id="clockStatus">
+            <span id="statusMessage">Loading clock...</span>
+        </div>
+    </div>
+    
+    <script src="astro.js"></script>
+    <script src="clock.nl.js"></script>
+</body>
+</html>
