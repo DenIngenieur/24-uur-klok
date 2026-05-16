@@ -77,11 +77,20 @@
         <h2>📁 Files and pages</h2>
         <p>The project contains three HTML pages, each with its own purpose:</p>
         <ul>
-            <li><strong><code>index.html</code></strong> – the main clock.</li>
-            <li><strong><code>sun.html</code></strong> – the solar calculator.</li>
-            <li><strong><code>moonphase.html</code></strong> – the moon phase visualiser.</li>
+            <li><strong><code>index.html</code></strong> – the main clock. Shows the 24-hour dial with day/night gradient, moon phase, Holocene timestamp, and sliders for latitude and day of year.</li>
+            <li><strong><code>sun.html</code></strong> – the solar calculator. For a given date and location, shows precise sunrise, sunset and all three twilight times (civil, nautical, astronomical). Also displays current sun position (altitude, declination, right ascension, hour angle) and the position at 12:00 UTC. Useful for photographers, astronomers, or plain curiosity.</li>
+            <li><strong><code>moonphase.html</code></strong> – the moon phase visualiser. An interactive demo showing how the moon appears at a given illumination percentage and latitude, with parallactic rotation. Useful for understanding and testing the moon model separately from the clock.</li>
         </ul>
-        <p>The JavaScript logic is split across <code>astro.js</code> and <code>clock.js</code>. Styling: <code>style.css</code> and <code>clock.css</code>.</p>
+        <p>The JavaScript logic is split across two files:</p>
+        <ul>
+            <li><strong><code>astro.js</code></strong> – astronomical calculations (Julian date, sun position, sunrise/sunset, twilights, solar noon/nadir) and moon phase calculations based on the J2000 Epoch New Moon and the synodic month.</li>
+            <li><strong><code>clock.js</code></strong> – all clock drawing logic (gradient, moon, dial, hands, tracker, sliders).</li>
+        </ul>
+        <p>And the styling:</p>
+        <ul>
+            <li><strong><code>style.css</code></strong> – page layout (body, container).</li>
+            <li><strong><code>clock.css</code></strong> – clock-specific styling (canvas, labels, sliders).</li>
+</ul>
 
         <h2>🚀 Use it live</h2>
         <ol>

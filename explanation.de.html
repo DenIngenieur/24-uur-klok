@@ -74,13 +74,22 @@
         </ul>
 
         <h2>📁 Dateien und Seiten</h2>
-        <p>Das Projekt enthält drei HTML-Seiten mit jeweils eigener Funktion:</p>
+        <p>Das Projekt enthält drei HTML-Seiten, jede mit ihrer eigenen Funktion:</p>
         <ul>
-            <li><strong><code>index.html</code></strong> – die Hauptuhr.</li>
-            <li><strong><code>sun.html</code></strong> – der Sonnenrechner.</li>
-            <li><strong><code>moonphase.html</code></strong> – der Mondphasen-Visualisierer.</li>
+            <li><strong><code>index.html</code></strong> – die Hauptuhr. Zeigt das 24-Stunden-Zifferblatt mit Tag/Nacht-Verlauf, Mondphase, holozänem Zeitstempel und Schiebereglern für Breitengrad und Tag des Jahres.</li>
+            <li><strong><code>sun.html</code></strong> – der Sonnenrechner. Zeigt für ein bestimmtes Datum und einen bestimmten Ort die genauen Zeiten von Sonnenaufgang, Sonnenuntergang und allen drei Dämmerungen (zivil, nautisch, astronomisch). Zeigt auch die aktuelle Sonnenposition (Höhe, Deklination, Rektaszension, Stundenwinkel) und die Position um 12:00 UTC. Nützlich für Fotografen, Astronomen oder aus reiner Neugier.</li>
+            <li><strong><code>moonphase.html</code></strong> – der Mondphasen-Visualisierer. Eine interaktive Demo, die zeigt, wie der Mond bei einem bestimmten Beleuchtungsprozentsatz und Breitengrad aussieht, mit parallaktischer Rotation. Nützlich, um das Mondmodell separat von der Uhr zu verstehen und zu testen.</li>
         </ul>
-        <p>Die JavaScript-Logik ist auf <code>astro.js</code> und <code>clock.js</code> verteilt. Styling: <code>style.css</code> und <code>clock.css</code>.</p>
+        <p>Die JavaScript-Logik ist auf zwei Dateien verteilt:</p>
+        <ul>
+            <li><strong><code>astro.js</code></strong> – astronomische Berechnungen (Julianisches Datum, Sonnenposition, Sonnenaufgang/-untergang, Dämmerungen, Sonnenmittag/-nadir) und Mondphasenberechnungen basierend auf dem J2000 Epoche Neumond und dem synodischen Monat.</li>
+            <li><strong><code>clock.js</code></strong> – die gesamte Zeichenlogik der Uhr (Verlauf, Mond, Zifferblatt, Zeiger, Tracker, Schieberegler).</li>
+        </ul>
+        <p>Und das Styling:</p>
+        <ul>
+            <li><strong><code>style.css</code></strong> – Seitenlayout (body, container).</li>
+            <li><strong><code>clock.css</code></strong> – uhrspezifisches Styling (Canvas, Beschriftungen, Schieberegler).</li>
+        </ul>
 
         <h2>🚀 Live verwenden</h2>
         <ol>

@@ -76,11 +76,20 @@
         <h2>📁 Bestanden en pagina's</h2>
         <p>Het project bevat drie HTML-pagina's met elk een eigen functie:</p>
         <ul>
-            <li><strong><code>index.html</code></strong> – de hoofdklok.</li>
-            <li><strong><code>sun.html</code></strong> – de zonnecalculator.</li>
-            <li><strong><code>moonphase.html</code></strong> – de maanfase-visualisator.</li>
+            <li><strong><code>index.html</code></strong> – de hoofdklok. Toont de 24-uurs wijzerplaat met dag/nacht-verloop, maanfase, Holoceen-tijdstempel, en schuifregelaars voor breedtegraad en dag van het jaar.</li>
+            <li><strong><code>sun.html</code></strong> – de zonnecalculator. Geeft voor een opgegeven datum en locatie de precieze tijden van zonsopgang, zonsondergang en alle drie de schemeringen (civiel, nautisch, astronomisch). Toont ook de actuele zonnepositie (altitude, declinatie, rechte klimming, uurhoek) en de positie om 12:00 UTC. Handig voor fotografen, astronomen, of gewoon uit nieuwsgierigheid.</li>
+            <li><strong><code>moonphase.html</code></strong> – de maanfase-visualisator. Een interactieve demo die toont hoe de maan eruitziet bij een bepaalde verlichtingsgraad en breedtegraad, met parallactische rotatie. Handig om het maanmodel los van de klok te begrijpen en te testen.</li>
         </ul>
-        <p>De JavaScript-logica is verdeeld over <code>astro.js</code> en <code>clock.js</code>. Opmaak: <code>style.css</code> en <code>clock.css</code>.</p>
+        <p>De JavaScript-logica is verdeeld over twee bestanden:</p>
+        <ul>
+            <li><strong><code>astro.js</code></strong> – astronomische berekeningen (Juliaanse dag, zonspositie, zonsopkomst/ondergang, schemeringen, zonnemiddag/nadir) én maanfase-berekeningen op basis van de J2000 Epoch Nieuwe Maan en de synodische maand.</li>
+            <li><strong><code>clock.js</code></strong> – alle tekenlogica voor de klok (gradiënt, maan, wijzerplaat, wijzers, tracker, schuifregelaars).</li>
+        </ul>
+        <p>En de opmaak:</p>
+        <ul>
+            <li><strong><code>style.css</code></strong> – pagina-layout (body, container).</li>
+            <li><strong><code>clock.css</code></strong> – klok-specifieke stijl (canvas, labels, schuifregelaars).</li>
+        </ul>
 
         <h2>🚀 Live gebruiken</h2>
         <ol>

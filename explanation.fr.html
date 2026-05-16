@@ -76,11 +76,20 @@
         <h2>📁 Fichiers et pages</h2>
         <p>Le projet contient trois pages HTML, chacune avec sa propre fonction :</p>
         <ul>
-            <li><strong><code>index.html</code></strong> – l'horloge principale.</li>
-            <li><strong><code>sun.html</code></strong> – le calculateur solaire.</li>
-            <li><strong><code>moonphase.html</code></strong> – le visualisateur de phases lunaires.</li>
+            <li><strong><code>index.html</code></strong> – l'horloge principale. Affiche le cadran 24 heures avec le dégradé jour/nuit, la phase lunaire, l'horodatage Holocène, et les curseurs pour la latitude et le jour de l'année.</li>
+            <li><strong><code>sun.html</code></strong> – le calculateur solaire. Pour une date et un lieu donnés, affiche les heures précises du lever, du coucher du soleil et des trois crépuscules (civil, nautique, astronomique). Affiche également la position actuelle du soleil (altitude, déclinaison, ascension droite, angle horaire) et la position à 12:00 UTC. Utile pour les photographes, les astronomes, ou par simple curiosité.</li>
+            <li><strong><code>moonphase.html</code></strong> – le visualiseur de phases lunaires. Une démo interactive montrant à quoi ressemble la lune à un certain pourcentage d'illumination et de latitude, avec rotation parallactique. Utile pour comprendre et tester le modèle lunaire séparément de l'horloge.</li>
         </ul>
-        <p>La logique JavaScript est répartie entre <code>astro.js</code> et <code>clock.js</code>. Style : <code>style.css</code> et <code>clock.css</code>.</p>
+        <p>La logique JavaScript est répartie sur deux fichiers :</p>
+        <ul>
+            <li><strong><code>astro.js</code></strong> – calculs astronomiques (date julienne, position du soleil, lever/coucher, crépuscules, midi/nadir solaire) et calculs des phases lunaires basés sur la Nouvelle Lune de l'Époque J2000 et le mois synodique.</li>
+            <li><strong><code>clock.js</code></strong> – toute la logique de dessin de l'horloge (dégradé, lune, cadran, aiguilles, traceur, curseurs).</li>
+        </ul>
+        <p>Et le style :</p>
+        <ul>
+            <li><strong><code>style.css</code></strong> – mise en page (body, container).</li>
+            <li><strong><code>clock.css</code></strong> – style spécifique à l'horloge (canvas, étiquettes, curseurs).</li>
+        </ul>
 
         <h2>🚀 Utilisation en direct</h2>
         <ol>
