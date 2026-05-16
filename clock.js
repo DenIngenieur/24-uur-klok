@@ -50,23 +50,23 @@ const CONFIG = {
     },
     // translation location-related messages
     location: {
-        // "geolocationNotSupported": "🌐 Geolocatie wordt niet ondersteund – standaardwaarde 50.81°N, 3.11°E gebruikt",
+        // geolocationNotSupported: "🌐 Geolocatie wordt niet ondersteund – standaardwaarde 50.81°N, 3.11°E gebruikt",
         geolocationNotSupported: "🌐 Geolocation not supported – using fallback 50.81°N, 3.11°E",
-        // "requestingLocation": "📍 Locatie wordt opgehaald...",
+        // requestingLocation: "📍 Locatie wordt opgehaald...",
         requestingLocation: "📍 Requesting location...",
-        // "geolocationDenied": "⚠️ Locatietoegang geweigerd – standaardwaarde 50.81°N, 3.11°E gebruikt",
+        // geolocationDenied: "⚠️ Locatietoegang geweigerd – standaardwaarde 50.81°N, 3.11°E gebruikt",
         geolocationDenied: "⚠️ Geolocation denied – using fallback 50.81°N, 3.11°E",
         fallbackCoordinates: { latitude: 50.81, longitude: 3.11 },
         fallbackCoordinatesText: "50.81°N, 3.11°E"
     },
     hemisphere: {
-        // "northern": "Noordelijk",
+        // northern: "Noordelijk",
         northern: "Northern",
-        // "southern": "Zuidelijk"
+        // southern: "Zuidelijk"
         southern: "Southern"
     },
     coordinateDisplay: {
-        // "format": "🌞 {hemisphere} halfrond | {latitude}° {longitude}°"
+        // format: "🌞 {hemisphere} halfrond | {latitude}° {longitude}°"
         format: "🌞 {hemisphere} hemisphere | {latitude}° {longitude}°"
     },
     // labels for feedback. Change these value to translate the UI label.
@@ -1042,7 +1042,7 @@ window.addEventListener('load', () => {
     }
     if (typeof MoonPhase === 'undefined') {
         const status = document.getElementById('statusMessage');
-        if (status) status.textContent = "Error: moonphase.js not loaded.";
+        if (status) status.textContent = "Error: astro.js not loaded.";
         return;
     }
     
