@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Holozäne Uhr – Erklärung (DE)</title>
+    <link rel="stylesheet" href="explanation.css">
+</head>
+<body>
+    <div class="explanation-container">
+        <div class="top-bar">
+            <div class="language-switcher">
+                <span>🌐</span>
+                <a href="explanation.en.html">English</a>
+                <a href="explanation.nl.html">Nederlands</a>
+                <a href="explanation.de.html" class="active">Deutsch</a>
+                <a href="explanation.fr.html">Français</a>
+            </div>
+            <div class="repo-link">
+                <a href="https://github.com/DenIngenieur/24-uur-klok">📦 GitHub Repository</a>
+            </div>
+        </div>
+
+        <h1>🕰️ Holozäne Uhr – 24h gegen den Uhrzeigersinn, mit Sonne, Mond und 10.000 Jahren Geschichte</h1>
+        <p>Eine bemerkenswerte Uhr, die <strong>gegen den Uhrzeigersinn</strong> läuft, <strong>24 Stunden</strong> anzeigt und die Position von Sonne und Mond zeigt – basierend auf Ihrem Standort und echter Astronomie.</p>
+        <p>Sehen Sie sie in Aktion: <a href="https://deningenieur.github.io/24-uur-klok/">zur Uhr</a></p>
+        <p>Oder schauen Sie sich das <a href="https://www.youtube.com/watch?v=l6dikXuCVhc">Video</a> oder den <a href="https://www.youtube.com/shorts/N17LtPc7U8w">Short</a> an (auf Englisch).</p>
+
+        <h2>✨ Was macht diese Uhr anders?</h2>
+        <ul>
+            <li><strong>12 Uhr (Mittag) ist oben</strong>, Mitternacht (0 Uhr) unten</li>
+            <li><strong>Gegen den Uhrzeigersinn</strong> – die Zeit läuft linksherum</li>
+            <li><strong>Sonnenaufgang/-untergang</strong> erzeugt einen sanften Farbverlauf auf dem Zifferblatt: tiefblaue Nacht → violette Dämmerungen → rosige Morgendämmerung → warmer goldener Tag → oranger Sonnenuntergang → und zurück</li>
+            <li><strong>Mondphasen</strong> in der Mitte des Zifferblatts, einschließlich parallaktischer Rotation basierend auf Ihrem Breitengrad</li>
+            <li><strong>Breitengrad-Schieberegler</strong> – entdecken Sie, wie sich Tag und Nacht von Pol zu Pol in Echtzeit verändern</li>
+            <li><strong>Tag-des-Jahres-Schieberegler</strong> – durchlaufen Sie das ganze Jahr und beobachten Sie, wie Tageslänge, Dämmerungen und Mondphasen mit den Jahreszeiten wechseln. Die Sommer-/Winterzeit-Wechsel erscheinen als plötzliche Sprünge in den Dämmerungsbändern. Standardmäßig auf heute eingestellt, mit einem Reset-Knopf für die Rückkehr.</li>
+            <li><strong>Holozäner Kalender</strong> – aktuelles Jahr + 10.000 (z.B. 12026 HE)</li>
+            <li><strong>Stunden-Tracker</strong> – ein Punkt, der die aktuelle Stunde am Rand verfolgt</li>
+        </ul>
+
+        <h2>🔄 Warum gegen den Uhrzeigersinn?</h2>
+        <p>Auf der Südhalbkugel bewegt sich der Schatten einer horizontalen Sonnenuhr <strong>gegen den Uhrzeigersinn</strong>, da die Sonne durch den nördlichen Himmel wandert. Die meisten Uhren folgen der nördlichen Konvention – diese Uhr folgt der Natur südlich des Äquators.</p>
+        <p>Im Laufe der Geschichte haben verschiedene Kulturen Uhren gegen den Uhrzeigersinn angenommen:</p>
+        <ul>
+            <li><strong>Testour, Tunesien</strong> – Eine Moschee-Uhr aus dem 17. Jahrhundert läuft rückwärts als Symbol für die Rückkehr nach Al-Andalus nach der Inquisition.</li>
+            <li><strong>Jüdische Uhren</strong> – Gespiegelt aufgrund der rechts-nach-links-Leserichtung des Hebräischen.</li>
+            <li><strong>Gujarat, Indien</strong> – Stammesgemeinschaften bemerken, dass Erde, Mond und Wasserwirbel alle gegen den Uhrzeigersinn drehen. Die Natur, so argumentieren sie, bewegt sich so.</li>
+        </ul>
+
+        <h2>🌾 Holozäne Ära (HE)</h2>
+        <p>Vorgeschlagen vom Physiker Cesare Emiliani im Jahr 1993, addiert der holozäne Kalender 10.000 Jahre zum AD/CE-Jahr. 2026 → 12026 HE.</p>
+        <p>Warum 10.000? Die Holozän-Epoche begann vor etwa 11.700 Jahren – als die Eiszeit endete, die Landwirtschaft begann und die ersten dauerhaften Siedlungen entstanden. Der HE-Kalender gibt uns ein Jahr null und verankert Zeit in Geologie und Zivilisation, nicht in Religion.</p>
+        <p>⟡ Sie leben im 12. Jahrtausend der menschlichen Zivilisation. ⟡</p>
+
+        <h2>🌐 Übersetzungen</h2>
+        <p>Die Uhr ist so konzipiert, dass sie leicht übersetzt werden kann. Alle Texte sind zentralisiert, sodass Sie nur zwei Bereiche ändern müssen:</p>
+        <ol>
+            <li><strong><code>clock.js</code></strong> – Im <code>CONFIG</code>-Objekt oben finden Sie Mondphasennamen, Ort- und Statusmeldungen, Schieberegler-Beschriftungen und die Halbkugel-Anzeige.</li>
+            <li><strong><code>index.html</code></strong> – Den <code>&lt;title&gt;</code>-Tag der Seite und alle statischen Texte außerhalb der dynamischen JavaScript-Elemente.</li>
+        </ol>
+
+        <h2>🌍 Es funktioniert wirklich</h2>
+        <ul>
+            <li>Fordert Standortberechtigung für genaue Sonnenaufgangs-, Sonnenuntergangs- und Dämmerungszeiten an</li>
+            <li>Ohne Standort → Fallback auf 50.81°N, 3.11°E (Flandern, Belgien)</li>
+            <li><strong>Breitengrad-Schieberegler</strong> – ziehen Sie von 90°N bis 90°S, um zu sehen, wie sich Tag/Nacht und Mondorientierung ändern</li>
+            <li><strong>Tag-des-Jahres-Schieberegler</strong> – ziehen Sie vom 1. Januar bis 31. Dezember, um die Jahreszeiten zu durchlaufen</li>
+            <li>Reset-Knöpfe, um zu Ihrem echten Standort und dem echten Datum zurückzukehren</li>
+            <li>Mondphase berechnet mit der J2000 Epoche Neumond (6. Januar 2000, 18:14 UTC) mit dem präzisen synodischen Monat von 29,530588853 Tagen</li>
+            <li>Zeigt Mondphasenname, Symbol und Beleuchtungsprozentsatz an</li>
+            <li>Funktioniert korrekt auf allen Breitengraden, einschließlich Polartag, Polarnacht und teilweiser Dämmerungen</li>
+            <li>Berücksichtigt Schaltjahre (366 Tage) und Sommer-/Winterzeit</li>
+        </ul>
+
+        <h2>📁 Dateien und Seiten</h2>
+        <p>Das Projekt enthält drei HTML-Seiten mit jeweils eigener Funktion:</p>
+        <ul>
+            <li><strong><code>index.html</code></strong> – die Hauptuhr.</li>
+            <li><strong><code>sun.html</code></strong> – der Sonnenrechner.</li>
+            <li><strong><code>moonphase.html</code></strong> – der Mondphasen-Visualisierer.</li>
+        </ul>
+        <p>Die JavaScript-Logik ist auf <code>astro.js</code> und <code>clock.js</code> verteilt. Styling: <code>style.css</code> und <code>clock.css</code>.</p>
+
+        <h2>🚀 Live verwenden</h2>
+        <ol>
+            <li>Laden Sie die Dateien in einen Ordner herunter.</li>
+            <li>Öffnen Sie <code>index.html</code> in einem modernen Browser (Chrome, Firefox, Edge).</li>
+            <li>Erteilen Sie die Standortberechtigung (für echte Sonnenaufgangs-/Sonnenuntergangszeiten).</li>
+            <li>Verwenden Sie die Schieberegler, um verschiedene Breitengrade und Tage zu erkunden.</li>
+            <li>Fertig – die Uhr läuft.</li>
+        </ol>
+
+        <h2>🎨 Konfiguration</h2>
+        <p>Alle Einstellungen befinden sich oben in <code>clock.js</code> im <code>CONFIG</code>-Objekt:</p>
+
+        <div class="config-section">
+            <h3>📟 CONFIG-Objekt aus clock.js</h3>
+            <pre>const CONFIG = {
+    size: 500,
+    showEveryNthHour: 1,
+    showEveryNthMinute: 5,
+    gradientMargin: 25,
+    gradientOpacity: 0.85,
+    gradientSteps: 720, // 0.5° per step
+    locationPrecision: 2, // decimal places for location cache key
+    
+    hourTrackerEnabled: true,
+    hourTrackerRadius: 5,
+    hourTrackerGlow: true,
+    
+    // Moon settings
+    moonRadiusRatio: 0.33,      // 1/3 of clock radius
+    moonGlowBlur: 6,
+    moonGlowOpacity: 0.15,
+    moonDarkColor: "#1a1d2e",
+    moonLightColor: "#fff8e0",
+    moonBorderColor: "rgba(255,255,240,0.3)",
+
+    // Translations
+    moonPhaseNames: {
+        // "New Moon": "Neumond",
+        "New Moon": "New Moon",
+        // "Waxing Crescent": "Zunehmende Sichel",
+        "Waxing Crescent": "Waxing Crescent",
+        // "First Quarter": "Erstes Viertel",
+        "First Quarter": "First Quarter",
+        // "Waxing Gibbous": "Zunehmender Mond",
+        "Waxing Gibbous": "Waxing Gibbous",
+        // "Full Moon": "Vollmond",
+        "Full Moon": "Full Moon",
+        // "Waning Gibbous": "Abnehmender Mond",
+        "Waning Gibbous": "Waning Gibbous",
+        // "Last Quarter": "Letztes Viertel",
+        "Last Quarter": "Last Quarter",
+        // "Waning Crescent": "Abnehmende Sichel"
+        "Waning Crescent": "Waning Crescent"
+    },
+    // location-related messages
+    location: {
+        // geolocationNotSupported: "🌐 Geolokalisierung nicht unterstützt – Fallback 50.81°N, 3.11°E verwendet",
+        geolocationNotSupported: "🌐 Geolocation not supported – using fallback 50.81°N, 3.11°E",
+        // requestingLocation: "📍 Standort wird angefordert...",
+        requestingLocation: "📍 Requesting location...",
+        // geolocationDenied: "⚠️ Standortzugriff verweigert – Fallback 50.81°N, 3.11°E verwendet",
+        geolocationDenied: "⚠️ Geolocation denied – using fallback 50.81°N, 3.11°E",
+        fallbackCoordinates: { latitude: 50.81, longitude: 3.11 },
+        fallbackCoordinatesText: "50.81°N, 3.11°E"
+    },
+    hemisphere: {
+        // northern: "Nördlich",
+        northern: "Northern",
+        // southern: "Südlich"
+        southern: "Southern"
+    },
+    coordinateDisplay: {
+        // format: "🌞 {hemisphere} Halbkugel | {latitude}° {longitude}°"
+        format: "🌞 {hemisphere} hemisphere | {latitude}° {longitude}°"
+    },
+    // labels for feedback
+    labels: {
+        // day: "Tag",
+        day: "Day",
+        // latitude: "Breitengrad"
+        latitude: "Latitude"
+    },
+
+    // Colours
+    colors: {
+        background: "#0a0e1a",
+        dialFace: "#111625",
+        dialBorder: "#2a3550",
+        marginRing: "#1a1e2e",
+        textGeneral: "#fff5e0",
+        minuteMarkers: "#ffffff",
+        hourHand: "#f0f3ff",
+        minuteHand: "#b9c7d9",
+        secondHand: "#ff4d6d",
+        tickMajor: "#ffffff",
+        tickMinor: "#5b6e8c",
+        // Twilight anchor colors (HSL values)
+        deepNight: { h: 235, s: 70, l: 8 },
+        astronomical: { h: 240, s: 55, l: 18 },
+        nautical: { h: 250, s: 40, l: 30 },
+        civil: { h: 280, s: 30, l: 45 },
+        sunrise: { h: 35, s: 60, l: 55 },
+        solarNoon: { h: 50, s: 40, l: 75 },
+        polarDay: { h: 51, s: 100, l: 70 }
+    },
+    
+    handLengths: { hour: 0.38, minute: 0.58, second: 0.72 },
+    handWidths: { hour: 6, minute: 4, second: 2 },
+    updateInterval: 250,
+};</pre>
+        </div>
+    </div>
+</body>
+</html>

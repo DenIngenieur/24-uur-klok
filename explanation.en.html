@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Holocene Clock – Explanation (EN)</title>
+    <link rel="stylesheet" href="explanation.css">
+</head>
+<body>
+    <div class="explanation-container">
+        <!-- Language Switcher + Repo Link -->
+        <div class="top-bar">
+            <div class="language-switcher">
+                <span>🌐</span>
+                <a href="explanation.en.html" class="active">English</a>
+                <a href="explanation.nl.html">Nederlands</a>
+                <a href="explanation.de.html">Deutsch</a>
+                <a href="explanation.fr.html">Français</a>
+            </div>
+            <div class="repo-link">
+                <a href="https://github.com/DenIngenieur/24-uur-klok">📦 GitHub Repository</a>
+            </div>
+        </div>
+
+        <h1>🕰️ Holocene Clock – 24h counterclockwise, with sun, moon and 10,000 years of history</h1>
+        <p>A remarkable clock that runs <strong>counterclockwise</strong>, displays <strong>24 hours</strong>, and shows the position of sun and moon – based on your location and real astronomy.</p>
+        <p>See it in action: <a href="https://deningenieur.github.io/24-uur-klok/">to the clock</a></p>
+        <p>Or look at the <a href="https://www.youtube.com/watch?v=l6dikXuCVhc">video</a> or the <a href="https://www.youtube.com/shorts/N17LtPc7U8w">short</a>.</p>
+
+        <h2>✨ What makes this clock different?</h2>
+        <ul>
+            <li><strong>12 o'clock (noon) is at the top</strong>, midnight (0h) at the bottom</li>
+            <li><strong>Counterclockwise</strong> – time moves leftwards</li>
+            <li><strong>Sunrise/sunset</strong> creates a smooth colour gradient on the dial: deep blue night → purple twilights → rosy dawn → warm golden day → orange sunset → and back again</li>
+            <li><strong>Moon phases</strong> displayed in the centre of the dial, including parallactic rotation based on your latitude</li>
+            <li><strong>Latitude slider</strong> – explore how day and night change from pole to pole, in real-time</li>
+            <li><strong>Day-of-year slider</strong> – scrub through the entire year and watch day length, twilights, and moon phases shift with the seasons. The daylight saving time transitions appear as sudden jumps in the twilight bands — a quiet reminder that the sun doesn't care about our clocks. Defaults to today, with a reset button to always return.</li>
+            <li><strong>Holocene calendar</strong> – current year + 10,000 (e.g. 12026 HE)</li>
+            <li><strong>Hour tracker</strong> – a dot that follows the current hour along the edge</li>
+        </ul>
+
+        <h2>🔄 Why counterclockwise?</h2>
+        <p>In the southern hemisphere, a horizontal sundial's shadow moves <strong>counterclockwise</strong> because the sun arcs through the northern sky. Most clocks follow the northern convention — this clock follows nature south of the equator.</p>
+        <p>Throughout history, various cultures have embraced counterclockwise clocks:</p>
+        <ul>
+            <li><strong>Testour, Tunisia</strong> — A 17th-century mosque clock runs backwards as a symbol of returning to Al-Andalus after the Inquisition.</li>
+            <li><strong>Jewish clocks</strong> — Mirrored due to Hebrew's right-to-left reading direction.</li>
+            <li><strong>Gujarat, India</strong> — Tribal communities note that Earth, the moon, and water vortices all spin counterclockwise. Nature, they argue, moves this way.</li>
+        </ul>
+
+        <h2>🌾 Holocene Era (HE)</h2>
+        <p>Proposed by physicist Cesare Emiliani in 1993, the Holocene calendar adds 10,000 years to the AD/CE year. 2026 → 12026 HE.</p>
+        <p>Why 10,000? The Holocene Epoch began ~11,700 years ago — when the Ice Age ended, agriculture began, and the first permanent settlements arose. The HE calendar gives us a year zero and anchors time to geology and civilisation, not religion.</p>
+        <p>⟡ You are living in the 12th millennium of human civilisation. ⟡</p>
+
+        <h2>🌐 Translations</h2>
+        <p>The clock is designed to be easily translatable. All user-facing strings are centralized, so you only need to modify two areas:</p>
+        <ol>
+            <li><strong><code>clock.js</code></strong> – In the <code>CONFIG</code> object at the top, you'll find moon phase names, location messages, slider labels and hemisphere display.</li>
+            <li><strong><code>index.html</code></strong> – The page's <code>&lt;title&gt;</code> tag and any static text outside the dynamic JavaScript elements.</li>
+        </ol>
+
+        <h2>🌍 It really works</h2>
+        <ul>
+            <li>Requests location (permission) for accurate sunrise, sunset and all twilights</li>
+            <li>Without location → falls back to 50.81°N, 3.11°E (Flanders, Belgium)</li>
+            <li><strong>Latitude slider</strong> – drag from 90°N to 90°S to see how day/night and moon orientation change</li>
+            <li><strong>Day-of-year slider</strong> – drag from January 1 to December 31 to travel through the seasons</li>
+            <li>Reset buttons to return to your real location and today's date</li>
+            <li>Moon phase calculated using the J2000 Epoch New Moon (January 6, 2000, 18:14 UTC) with the precise synodic month of 29.530588853 days</li>
+            <li>Displays moon phase name, symbol and illumination percentage</li>
+            <li>Works correctly at all latitudes, including polar day, polar night, and partial twilights</li>
+            <li>Accounts for leap years (366 days) and daylight saving time</li>
+        </ul>
+
+        <h2>📁 Files and pages</h2>
+        <p>The project contains three HTML pages, each with its own purpose:</p>
+        <ul>
+            <li><strong><code>index.html</code></strong> – the main clock.</li>
+            <li><strong><code>sun.html</code></strong> – the solar calculator.</li>
+            <li><strong><code>moonphase.html</code></strong> – the moon phase visualiser.</li>
+        </ul>
+        <p>The JavaScript logic is split across <code>astro.js</code> and <code>clock.js</code>. Styling: <code>style.css</code> and <code>clock.css</code>.</p>
+
+        <h2>🚀 Use it live</h2>
+        <ol>
+            <li>Download the files into one folder.</li>
+            <li>Open <code>index.html</code> in a modern browser (Chrome, Firefox, Edge).</li>
+            <li>Grant location permission (for real sunrise/sunset times).</li>
+            <li>Use the sliders to explore different latitudes and days.</li>
+            <li>Done – the clock is running.</li>
+        </ol>
+
+        <h2>🎨 Configuration</h2>
+        <p>All settings are at the top of <code>clock.js</code> in the <code>CONFIG</code> object:</p>
+
+        <div class="config-section">
+            <h3>📟 CONFIG object from clock.js</h3>
+            <pre>const CONFIG = {
+    size: 500,
+    showEveryNthHour: 1,
+    showEveryNthMinute: 5,
+    gradientMargin: 25,
+    gradientOpacity: 0.85,
+    gradientSteps: 720, // 0.5° per step
+    locationPrecision: 2, // decimal places for location cache key
+    
+    hourTrackerEnabled: true,
+    hourTrackerRadius: 5,
+    hourTrackerGlow: true,
+    
+    // Moon settings
+    moonRadiusRatio: 0.33,      // 1/3 of clock radius
+    moonGlowBlur: 6,
+    moonGlowOpacity: 0.15,
+    moonDarkColor: "#1a1d2e",
+    moonLightColor: "#fff8e0",
+    moonBorderColor: "rgba(255,255,240,0.3)",
+
+    // Translations
+    moonPhaseNames: {
+        // "New Moon": "New Moon",
+        "New Moon": "New Moon",
+        // "Waxing Crescent": "Waxing Crescent",
+        "Waxing Crescent": "Waxing Crescent",
+        // "First Quarter": "First Quarter",
+        "First Quarter": "First Quarter",
+        // "Waxing Gibbous": "Waxing Gibbous",
+        "Waxing Gibbous": "Waxing Gibbous",
+        // "Full Moon": "Full Moon",
+        "Full Moon": "Full Moon",
+        // "Waning Gibbous": "Waning Gibbous",
+        "Waning Gibbous": "Waning Gibbous",
+        // "Last Quarter": "Last Quarter",
+        "Last Quarter": "Last Quarter",
+        // "Waning Crescent": "Waning Crescent"
+        "Waning Crescent": "Waning Crescent"
+    },
+    // location-related messages
+    location: {
+        // geolocationNotSupported: "🌐 Geolocation not supported – using fallback 50.81°N, 3.11°E",
+        geolocationNotSupported: "🌐 Geolocation not supported – using fallback 50.81°N, 3.11°E",
+        // requestingLocation: "📍 Requesting location...",
+        requestingLocation: "📍 Requesting location...",
+        // geolocationDenied: "⚠️ Geolocation denied – using fallback 50.81°N, 3.11°E",
+        geolocationDenied: "⚠️ Geolocation denied – using fallback 50.81°N, 3.11°E",
+        fallbackCoordinates: { latitude: 50.81, longitude: 3.11 },
+        fallbackCoordinatesText: "50.81°N, 3.11°E"
+    },
+    hemisphere: {
+        // northern: "Northern",
+        northern: "Northern",
+        // southern: "Southern"
+        southern: "Southern"
+    },
+    coordinateDisplay: {
+        // format: "🌞 {hemisphere} hemisphere | {latitude}° {longitude}°"
+        format: "🌞 {hemisphere} hemisphere | {latitude}° {longitude}°"
+    },
+    // labels for feedback
+    labels: {
+        // day: "Day",
+        day: "Day",
+        // latitude: "Latitude"
+        latitude: "Latitude"
+    },
+
+    // Colours
+    colors: {
+        background: "#0a0e1a",
+        dialFace: "#111625",
+        dialBorder: "#2a3550",
+        marginRing: "#1a1e2e",
+        textGeneral: "#fff5e0",
+        minuteMarkers: "#ffffff",
+        hourHand: "#f0f3ff",
+        minuteHand: "#b9c7d9",
+        secondHand: "#ff4d6d",
+        tickMajor: "#ffffff",
+        tickMinor: "#5b6e8c",
+        // Twilight anchor colors (HSL values)
+        deepNight: { h: 235, s: 70, l: 8 },
+        astronomical: { h: 240, s: 55, l: 18 },
+        nautical: { h: 250, s: 40, l: 30 },
+        civil: { h: 280, s: 30, l: 45 },
+        sunrise: { h: 35, s: 60, l: 55 },
+        solarNoon: { h: 50, s: 40, l: 75 },
+        polarDay: { h: 51, s: 100, l: 70 }
+    },
+    
+    handLengths: { hour: 0.38, minute: 0.58, second: 0.72 },
+    handWidths: { hour: 6, minute: 4, second: 2 },
+    updateInterval: 250,
+};</pre>
+        </div>
+    </div>
+</body>
+</html>

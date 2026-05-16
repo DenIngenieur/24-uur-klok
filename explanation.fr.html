@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horloge Holocène – Explication (FR)</title>
+    <link rel="stylesheet" href="explanation.css">
+</head>
+<body>
+    <div class="explanation-container">
+        <div class="top-bar">
+            <div class="language-switcher">
+                <span>🌐</span>
+                <a href="explanation.en.html">English</a>
+                <a href="explanation.nl.html">Nederlands</a>
+                <a href="explanation.de.html">Deutsch</a>
+                <a href="explanation.fr.html" class="active">Français</a>
+            </div>
+            <div class="repo-link">
+                <a href="https://github.com/DenIngenieur/24-uur-klok">📦 Dépôt GitHub</a>
+            </div>
+        </div>
+
+        <h1>🕰️ Horloge Holocène – 24h dans le sens inverse, avec soleil, lune et 10 000 ans d'histoire</h1>
+        <p>Une horloge remarquable qui tourne <strong>dans le sens inverse des aiguilles d'une montre</strong>, affiche <strong>24 heures</strong>, et montre la position du soleil et de la lune – basée sur votre localisation et l'astronomie réelle.</p>
+        <p>Voir en action : <a href="https://deningenieur.github.io/24-uur-klok/">vers l'horloge</a></p>
+        <p>Ou regardez la <a href="https://www.youtube.com/watch?v=l6dikXuCVhc">vidéo</a> ou le <a href="https://www.youtube.com/shorts/N17LtPc7U8w">short</a> (	en anglais).</p>
+
+        <h2>✨ Qu'est-ce qui rend cette horloge différente ?</h2>
+        <ul>
+            <li><strong>12 heures (midi) est en haut</strong>, minuit (0h) en bas</li>
+            <li><strong>Sens inverse des aiguilles</strong> – le temps se déplace vers la gauche</li>
+            <li><strong>Lever/coucher du soleil</strong> crée un dégradé de couleurs fluide sur le cadran : nuit bleu profond → crépuscules violets → aube rosée → jour doré chaud → coucher de soleil orange → et retour</li>
+            <li><strong>Phases de lune</strong> affichées au centre du cadran, y compris la rotation parallactique basée sur votre latitude</li>
+            <li><strong>Curseur de latitude</strong> – explorez comment le jour et la nuit changent d'un pôle à l'autre, en temps réel</li>
+            <li><strong>Curseur du jour de l'année</strong> – parcourez toute l'année et observez la durée du jour, les crépuscules et les phases lunaires changer avec les saisons. Les transitions heure d'été/hiver apparaissent comme des sauts soudains dans les bandes crépusculaires. Par défaut aujourd'hui, avec un bouton de réinitialisation pour toujours revenir.</li>
+            <li><strong>Calendrier Holocène</strong> – année actuelle + 10 000 (ex. 12026 HE)</li>
+            <li><strong>Traceur d'heure</strong> – un point qui suit l'heure actuelle le long du bord</li>
+        </ul>
+
+        <h2>🔄 Pourquoi le sens inverse des aiguilles ?</h2>
+        <p>Dans l'hémisphère sud, l'ombre d'un cadran solaire horizontal se déplace <strong>dans le sens inverse des aiguilles d'une montre</strong> car le soleil traverse le ciel nordique. La plupart des horloges suivent la convention nordique — cette horloge suit la nature au sud de l'équateur.</p>
+        <p>Au cours de l'histoire, diverses cultures ont adopté des horloges tournant en sens inverse :</p>
+        <ul>
+            <li><strong>Testour, Tunisie</strong> — Une horloge de mosquée du 17ème siècle tourne à l'envers comme symbole du retour à Al-Andalus après l'Inquisition.</li>
+            <li><strong>Horloges juives</strong> — Miroir en raison du sens de lecture de l'hébreu de droite à gauche.</li>
+            <li><strong>Gujarat, Inde</strong> — Les communautés tribales notent que la Terre, la lune et les tourbillons d'eau tournent tous dans le sens inverse des aiguilles. La nature, disent-ils, bouge ainsi.</li>
+        </ul>
+
+        <h2>🌾 Ère Holocène (HE)</h2>
+        <p>Proposé par le physicien Cesare Emiliani en 1993, le calendrier Holocène ajoute 10 000 ans à l'année AD/CE. 2026 → 12026 HE.</p>
+        <p>Pourquoi 10 000 ? L'époque Holocène a commencé il y a ~11 700 ans — lorsque l'ère glaciaire s'est terminée, l'agriculture a commencé et les premières colonies permanentes sont apparues. Le calendrier HE nous donne une année zéro et ancre le temps dans la géologie et la civilisation, non dans la religion.</p>
+        <p>⟡ Vous vivez dans le 12ème millénaire de la civilisation humaine. ⟡</p>
+
+        <h2>🌐 Traductions</h2>
+        <p>L'horloge est conçue pour être facilement traduisible. Tous les textes sont centralisés, vous n'avez donc besoin de modifier que deux zones :</p>
+        <ol>
+            <li><strong><code>clock.js</code></strong> – Dans l'objet <code>CONFIG</code> en haut, vous trouverez les noms des phases lunaires, les messages de localisation, les étiquettes des curseurs et l'affichage de l'hémisphère.</li>
+            <li><strong><code>index.html</code></strong> – La balise <code>&lt;title&gt;</code> de la page et tout texte statique en dehors des éléments JavaScript dynamiques.</li>
+        </ol>
+
+        <h2>🌍 Ça fonctionne vraiment</h2>
+        <ul>
+            <li>Demande l'autorisation de localisation pour le lever/coucher du soleil et tous les crépuscules précis</li>
+            <li>Sans localisation → repli sur 50.81°N, 3.11°E (Flandre, Belgique)</li>
+            <li><strong>Curseur de latitude</strong> – glissez de 90°N à 90°S pour voir comment jour/nuit et l'orientation de la lune changent</li>
+            <li><strong>Curseur du jour de l'année</strong> – glissez du 1er janvier au 31 décembre pour parcourir les saisons</li>
+            <li>Boutons de réinitialisation pour revenir à votre véritable localisation et à la date réelle</li>
+            <li>Phase lunaire calculée en utilisant la Nouvelle Lune de l'Époque J2000 (6 janvier 2000, 18:14 UTC) avec le mois synodique précis de 29,530588853 jours</li>
+            <li>Affiche le nom de la phase lunaire, le symbole et le pourcentage d'illumination</li>
+            <li>Fonctionne correctement à toutes les latitudes, y compris le jour polaire, la nuit polaire et les crépuscules partiels</li>
+            <li>Tient compte des années bissextiles (366 jours) et de l'heure d'été/hiver</li>
+        </ul>
+
+        <h2>📁 Fichiers et pages</h2>
+        <p>Le projet contient trois pages HTML, chacune avec sa propre fonction :</p>
+        <ul>
+            <li><strong><code>index.html</code></strong> – l'horloge principale.</li>
+            <li><strong><code>sun.html</code></strong> – le calculateur solaire.</li>
+            <li><strong><code>moonphase.html</code></strong> – le visualisateur de phases lunaires.</li>
+        </ul>
+        <p>La logique JavaScript est répartie entre <code>astro.js</code> et <code>clock.js</code>. Style : <code>style.css</code> et <code>clock.css</code>.</p>
+
+        <h2>🚀 Utilisation en direct</h2>
+        <ol>
+            <li>Téléchargez les fichiers dans un dossier.</li>
+            <li>Ouvrez <code>index.html</code> dans un navigateur moderne (Chrome, Firefox, Edge).</li>
+            <li>Autorisez la localisation (pour les heures réelles de lever/coucher du soleil).</li>
+            <li>Utilisez les curseurs pour explorer différentes latitudes et jours.</li>
+            <li>Terminé – l'horloge tourne.</li>
+        </ol>
+
+        <h2>🎨 Configuration</h2>
+        <p>Tous les paramètres se trouvent en haut de <code>clock.js</code> dans l'objet <code>CONFIG</code> :</p>
+
+        <div class="config-section">
+            <h3>📟 Objet CONFIG de clock.js</h3>
+            <pre>const CONFIG = {
+    size: 500,
+    showEveryNthHour: 1,
+    showEveryNthMinute: 5,
+    gradientMargin: 25,
+    gradientOpacity: 0.85,
+    gradientSteps: 720, // 0.5° par étape
+    locationPrecision: 2, // décimales pour la clé de cache de localisation
+    
+    hourTrackerEnabled: true,
+    hourTrackerRadius: 5,
+    hourTrackerGlow: true,
+    
+    // Paramètres de la lune
+    moonRadiusRatio: 0.33,      // 1/3 du rayon de l'horloge
+    moonGlowBlur: 6,
+    moonGlowOpacity: 0.15,
+    moonDarkColor: "#1a1d2e",
+    moonLightColor: "#fff8e0",
+    moonBorderColor: "rgba(255,255,240,0.3)",
+
+    // Traductions
+    moonPhaseNames: {
+        // "New Moon": "Nouvelle Lune",
+        "New Moon": "New Moon",
+        // "Waxing Crescent": "Premier Croissant",
+        "Waxing Crescent": "Waxing Crescent",
+        // "First Quarter": "Premier Quartier",
+        "First Quarter": "First Quarter",
+        // "Waxing Gibbous": "Lune Gibbeuse Croissante",
+        "Waxing Gibbous": "Waxing Gibbous",
+        // "Full Moon": "Pleine Lune",
+        "Full Moon": "Full Moon",
+        // "Waning Gibbous": "Lune Gibbeuse Décroissante",
+        "Waning Gibbous": "Waning Gibbous",
+        // "Last Quarter": "Dernier Quartier",
+        "Last Quarter": "Last Quarter",
+        // "Waning Crescent": "Dernier Croissant"
+        "Waning Crescent": "Waning Crescent"
+    },
+    // messages liés à la localisation
+    location: {
+        // geolocationNotSupported: "🌐 Géolocalisation non supportée – utilisation du fallback 50.81°N, 3.11°E",
+        geolocationNotSupported: "🌐 Geolocation not supported – using fallback 50.81°N, 3.11°E",
+        // requestingLocation: "📍 Demande de localisation...",
+        requestingLocation: "📍 Requesting location...",
+        // geolocationDenied: "⚠️ Accès à la localisation refusé – utilisation du fallback 50.81°N, 3.11°E",
+        geolocationDenied: "⚠️ Geolocation denied – using fallback 50.81°N, 3.11°E",
+        fallbackCoordinates: { latitude: 50.81, longitude: 3.11 },
+        fallbackCoordinatesText: "50.81°N, 3.11°E"
+    },
+    hemisphere: {
+        // northern: "Nord",
+        northern: "Northern",
+        // southern: "Sud"
+        southern: "Southern"
+    },
+    coordinateDisplay: {
+        // format: "🌞 {hemisphere} | {latitude}° {longitude}°"
+        format: "🌞 {hemisphere} hemisphere | {latitude}° {longitude}°"
+    },
+    // étiquettes pour les retours utilisateur
+    labels: {
+        // day: "Jour",
+        day: "Day",
+        // latitude: "Latitude"
+        latitude: "Latitude"
+    },
+
+    // Couleurs
+    colors: {
+        background: "#0a0e1a",
+        dialFace: "#111625",
+        dialBorder: "#2a3550",
+        marginRing: "#1a1e2e",
+        textGeneral: "#fff5e0",
+        minuteMarkers: "#ffffff",
+        hourHand: "#f0f3ff",
+        minuteHand: "#b9c7d9",
+        secondHand: "#ff4d6d",
+        tickMajor: "#ffffff",
+        tickMinor: "#5b6e8c",
+        // Couleurs d'ancrage du crépuscule (valeurs HSL)
+        deepNight: { h: 235, s: 70, l: 8 },
+        astronomical: { h: 240, s: 55, l: 18 },
+        nautical: { h: 250, s: 40, l: 30 },
+        civil: { h: 280, s: 30, l: 45 },
+        sunrise: { h: 35, s: 60, l: 55 },
+        solarNoon: { h: 50, s: 40, l: 75 },
+        polarDay: { h: 51, s: 100, l: 70 }
+    },
+    
+    handLengths: { hour: 0.38, minute: 0.58, second: 0.72 },
+    handWidths: { hour: 6, minute: 4, second: 2 },
+    updateInterval: 250,
+};</pre>
+        </div>
+    </div>
+</body>
+</html>

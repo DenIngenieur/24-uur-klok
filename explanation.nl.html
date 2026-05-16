@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Holoceen Klok – Uitleg (NL)</title>
+    <link rel="stylesheet" href="explanation.css">
+</head>
+<body>
+    <div class="explanation-container">
+        <div class="top-bar">
+            <div class="language-switcher">
+                <span>🌐</span>
+                <a href="explanation.en.html">English</a>
+                <a href="explanation.nl.html" class="active">Nederlands</a>
+                <a href="explanation.de.html">Deutsch</a>
+                <a href="explanation.fr.html">Français</a>
+            </div>
+            <div class="repo-link">
+                <a href="https://github.com/DenIngenieur/24-uur-klok">📦 GitHub Repository</a>
+            </div>
+        </div>
+
+        <h1>🕰️ Holoceen Klok – 24u linksom, met zon, maan en 10.000 jaar geschiedenis</h1>
+        <p>Een bijzondere klok die <strong>tegen de klok in loopt</strong>, <strong>24 uur</strong> toont, en de stand van de zon en maan laat zien – gebaseerd op jouw locatie en de echte sterrenkunde.</p>
+        <p>Zie het ding in werking: <a href="https://deningenieur.github.io/24-uur-klok/">naar de klok</a></p>
+        <p>Of bekijk de <a href="https://www.youtube.com/watch?v=Vago5uCc7qQ">video</a> of de <a href="https://www.youtube.com/shorts/BFC3ueQ0R5I">short</a>.</p>
+
+        <h2>✨ Wat maakt deze klok anders?</h2>
+        <ul>
+            <li><strong>12 uur (middag) staat boven</strong>, middernacht (0 uur) onder</li>
+            <li><strong>Tegen de klok in</strong> – de tijd loopt linksom</li>
+            <li><strong>Zonsopgang / zonsondergang</strong> bepaalt een vloeiend kleurenverloop op de wijzerplaat: diepblauwe nacht → paarse schemeringen → rozig ochtendgloren → warm gouden dag → oranje zonsondergang → en weer terug</li>
+            <li><strong>Schijngestalten van de maan</strong> in het midden van de wijzerplaat, inclusief parallactische rotatie op basis van je breedtegraad</li>
+            <li><strong>Breedtegraad-schuifregelaar</strong> – verken hoe de dag en nacht veranderen van pool tot pool, in real-time</li>
+            <li><strong>Dag-van-het-jaar schuifregelaar</strong> – doorloop het volledige jaar en zie hoe de daglengte, schemeringen en maanfase mee veranderen met de seizoenen. De overgang van zomer- naar wintertijd (en omgekeerd) is als een plotse sprong in de schemering zichtbaar. De standaardpositie is vandaag, met een resetknop om altijd terug te keren.</li>
+            <li><strong>Holoceen kalender</strong> – huidig jaar + 10.000 (bijv. 12026 HE)</li>
+            <li><strong>Uurwijzer-tracker</strong> – een stip die het huidige uur volgt langs de rand</li>
+        </ul>
+
+        <h2>🔄 Waarom tegen de klok in?</h2>
+        <p>Op het zuidelijk halfrond loopt de schaduw van een horizontale zonnewijzer <strong>linksom</strong> omdat de zon door de noordelijke hemel beweegt. De meeste klokken volgen de noordelijke conventie — deze klok volgt de natuur ten zuiden van de evenaar.</p>
+        <p>Door de geschiedenis heen hebben diverse culturen linksomlopende klokken omarmd:</p>
+        <ul>
+            <li><strong>Testour, Tunesië</strong> — Een 17e-eeuwse moskeeklok loopt achteruit als symbool voor de terugkeer naar Al-Andalus na de Inquisitie.</li>
+            <li><strong>Joodse klokken</strong> — Gespiegeld vanwege de rechts-naar-links leesrichting van het Hebreeuws.</li>
+            <li><strong>Gujarat, India</strong> — Tribale gemeenschappen merken op dat de aarde, de maan en waterdraaikolken allemaal linksom draaien. De natuur, stellen zij, beweegt zo.</li>
+        </ul>
+
+        <h2>🌾 Holoceen Kalender (HE)</h2>
+        <p>Voorgesteld door natuurkundige Cesare Emiliani in 1993, telt de Holocene kalender 10.000 jaar op bij het AD/CE-jaar. 2026 → 12026 HE.</p>
+        <p>Waarom 10.000? Het Holoceen-tijdperk begon ~11.700 jaar geleden — toen de IJstijd eindigde, landbouw ontstond, en de eerste permanente nederzettingen werden gebouwd. De HE-kalender geeft ons een jaar nul en verankert tijd in geologie en beschaving, niet in religie.</p>
+        <p>⟡ Je leeft in het 12e millennium van de menselijke beschaving. ⟡</p>
+
+        <h2>🌐 Vertalingen</h2>
+        <p>De klok is ontworpen om eenvoudig vertaald te worden. Alle gebruikte tekst is gecentraliseerd, zodat je maar op twee plekken aanpassingen hoeft te doen:</p>
+        <ol>
+            <li><strong><code>clock.js</code></strong> – In het <code>CONFIG</code>-object bovenaan vind je maanfase-namen, locatie- en statusberichten, labels voor schuifregelaars en de weergave van het halfrond.</li>
+            <li><strong><code>index.html</code></strong> – De <code>&lt;title&gt;</code> van de pagina en eventuele vaste tekst in de HTML-structuur.</li>
+        </ol>
+
+        <h2>🌍 Werkt écht</h2>
+        <ul>
+            <li>Vraagt locatie (toestemming) voor nauwkeurige zonsopkomst, zonsondergang en alle schemeringen</li>
+            <li>Zonder locatie → valt terug op 50.81°N, 3.11°O (Vlaanderen, België)</li>
+            <li><strong>Breedtegraad-schuifregelaar</strong> – sleep van 90°N naar 90°Z om te zien hoe dag/nacht en de maanoriëntatie veranderen</li>
+            <li><strong>Dag-van-het-jaar schuifregelaar</strong> – sleep van 1 januari tot 31 december om de seizoenen te doorlopen</li>
+            <li>Resetknoppen om terug te keren naar je echte locatie en de echte datum</li>
+            <li>Maanstand wordt berekend op basis van de J2000 Epoch Nieuwe Maan (6 januari 2000, 18:14 UTC) met de precieze synodische maand van 29,530588853 dagen</li>
+            <li>Toont maanfase, symbool en verlichtingspercentage</li>
+            <li>Werkt correct op alle breedtegraden, inclusief pooldag, poolnacht, en gedeeltelijke schemeringen</li>
+            <li>Houdt rekening met schrikkeljaren (366 dagen) en zomer-/wintertijd</li>
+        </ul>
+
+        <h2>📁 Bestanden en pagina's</h2>
+        <p>Het project bevat drie HTML-pagina's met elk een eigen functie:</p>
+        <ul>
+            <li><strong><code>index.html</code></strong> – de hoofdklok.</li>
+            <li><strong><code>sun.html</code></strong> – de zonnecalculator.</li>
+            <li><strong><code>moonphase.html</code></strong> – de maanfase-visualisator.</li>
+        </ul>
+        <p>De JavaScript-logica is verdeeld over <code>astro.js</code> en <code>clock.js</code>. Opmaak: <code>style.css</code> en <code>clock.css</code>.</p>
+
+        <h2>🚀 Live gebruiken</h2>
+        <ol>
+            <li>Download de bestanden in één map.</li>
+            <li>Open <code>index.html</code> in een moderne browser (Chrome, Firefox, Edge).</li>
+            <li>Geef toestemming voor locatie (voor echte zonsopkomst/ondergang).</li>
+            <li>Gebruik de schuifregelaars om breedtegraden en dagen te verkennen.</li>
+            <li>Klaar – de klok draait.</li>
+        </ol>
+
+        <h2>🎨 Configuratie</h2>
+        <p>Alle instellingen staan bovenaan <code>clock.js</code> in het <code>CONFIG</code> object:</p>
+
+        <div class="config-section">
+            <h3>📟 CONFIG object uit clock.js</h3>
+            <pre>const CONFIG = {
+    size: 500,
+    showEveryNthHour: 1,
+    showEveryNthMinute: 5,
+    gradientMargin: 25,
+    gradientOpacity: 0.85,
+    gradientSteps: 720, // 0.5° per step
+    locationPrecision: 2, // decimal places for location cache key
+    
+    hourTrackerEnabled: true,
+    hourTrackerRadius: 5,
+    hourTrackerGlow: true,
+    
+    // Moon settings
+    moonRadiusRatio: 0.33,      // 1/3 of clock radius
+    moonGlowBlur: 6,
+    moonGlowOpacity: 0.15,
+    moonDarkColor: "#1a1d2e",
+    moonLightColor: "#fff8e0",
+    moonBorderColor: "rgba(255,255,240,0.3)",
+
+    // Translations
+    moonPhaseNames: {
+        // "New Moon": "Nieuwe Maan",
+        "New Moon": "New Moon",
+        // "Waxing Crescent": "Wassende Halve Maan",
+        "Waxing Crescent": "Waxing Crescent",
+        // "First Quarter": "Eerste Kwartier",
+        "First Quarter": "First Quarter",
+        // "Waxing Gibbous": "Wassende Maan",
+        "Waxing Gibbous": "Waxing Gibbous",
+        // "Full Moon": "Volle Maan",
+        "Full Moon": "Full Moon",
+        // "Waning Gibbous": "Afnemende Maan",
+        "Waning Gibbous": "Waning Gibbous",
+        // "Last Quarter": "Laatste Kwartier",
+        "Last Quarter": "Last Quarter",
+        // "Waning Crescent": "Afnemende Halve Maan"
+        "Waning Crescent": "Waning Crescent"
+    },
+    // translation location-related messages
+    location: {
+        // geolocationNotSupported: "🌐 Geolocatie wordt niet ondersteund – standaardwaarde 50.81°N, 3.11°E gebruikt",
+        geolocationNotSupported: "🌐 Geolocation not supported – using fallback 50.81°N, 3.11°E",
+        // requestingLocation: "📍 Locatie wordt opgehaald...",
+        requestingLocation: "📍 Requesting location...",
+        // geolocationDenied: "⚠️ Locatietoegang geweigerd – standaardwaarde 50.81°N, 3.11°E gebruikt",
+        geolocationDenied: "⚠️ Geolocation denied – using fallback 50.81°N, 3.11°E",
+        fallbackCoordinates: { latitude: 50.81, longitude: 3.11 },
+        fallbackCoordinatesText: "50.81°N, 3.11°E"
+    },
+    hemisphere: {
+        // northern: "Noordelijk",
+        northern: "Northern",
+        // southern: "Zuidelijk"
+        southern: "Southern"
+    },
+    coordinateDisplay: {
+        // format: "🌞 {hemisphere} halfrond | {latitude}° {longitude}°"
+        format: "🌞 {hemisphere} hemisphere | {latitude}° {longitude}°"
+    },
+    // labels for feedback. Change these value to translate the UI label.
+    labels: {
+        // day: "Dag",
+        day: "Day",
+        // latitude: "Breedtegraad"
+        latitude: "Latitude"
+    },
+
+    // Colours to choose :-)
+    colors: {
+        background: "#0a0e1a",
+        dialFace: "#111625",
+        dialBorder: "#2a3550",
+        marginRing: "#1a1e2e",
+        textGeneral: "#fff5e0",
+        minuteMarkers: "#ffffff",
+        hourHand: "#f0f3ff",
+        minuteHand: "#b9c7d9",
+        secondHand: "#ff4d6d",
+        tickMajor: "#ffffff",
+        tickMinor: "#5b6e8c",
+        // Twilight anchor colors (HSL values) - more natural sky colors
+        deepNight: { h: 235, s: 70, l: 8 },
+        astronomical: { h: 240, s: 55, l: 18 },
+        nautical: { h: 250, s: 40, l: 30 },
+        civil: { h: 280, s: 30, l: 45 },
+        sunrise: { h: 35, s: 60, l: 55 },
+        solarNoon: { h: 50, s: 40, l: 75 },
+        polarDay: { h: 51, s: 100, l: 70 }
+    },
+    
+    handLengths: { hour: 0.38, minute: 0.58, second: 0.72 },
+    handWidths: { hour: 6, minute: 4, second: 2 },
+    updateInterval: 250,
+};</pre>
+        </div>
+    </div>
+</body>
+</html>
