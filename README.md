@@ -50,7 +50,7 @@ De klok is ontworpen om eenvoudig vertaald te worden. Alle gebruikte tekst is ge
     *   **Maanfase-namen** (`moonPhaseNames`)
     *   **Locatie- en statusberichten** (`location`)
     *   **Labels voor schuifregelaars en de weergave van het halfrond** (`labels`, `hemisphere`, `coordinateDisplay`)
-    *   Alle Nederlandse vertalingen staan al klaar als commentaar naast de Engelse tekst — je kunt ze eenvoudig activeren door het commentaar te wisselen.
+    *   Alle Nederlandse vertalingen staan al klaar als commentaar naast de Engelse tekst — je kunt ze eenvoudig activeren door het commentaar te wisselen. Zie clock.nl.js en clock.nl.html voor een [werkende Nederlandstalige versie](https://deningenieur.github.io/24-uur-klok/clock.nl.html).
 
 2.  **`index.html`** – Een paar labels die door de browser zelf worden getoond, moeten hier handmatig vertaald worden:
     *   De `<title>` van de pagina.
