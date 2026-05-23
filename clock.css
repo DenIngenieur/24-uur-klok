@@ -9,7 +9,7 @@
 }
 
 .clock-label {
-    font-family: 'Courier New', 'Fira Code', monospace;
+    font-family: "Segoe UI", "Roboto", "Courier New", monospace, "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", "Twemoji Mozilla";
     font-size: 1.2rem;
     font-weight: bold;
     letter-spacing: 2px;

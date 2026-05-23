@@ -240,16 +240,21 @@ class MoonRenderer {
         this.cy = cy;
         this.radius = radius;
         this.latitude = latitude;
-        this.moonPhase = new MoonPhase();
+        this.moonPhase = new MoonPhase(latitude); // added latitude for moon icons
         this.cachedPhase = null;
         this.cacheDate = null;
     }
-    
+
     updatePosition(cx, cy, radius, latitude) {
         this.cx = cx;
         this.cy = cy;
         this.radius = radius;
         this.latitude = latitude;
+        
+        // --- ADD THIS ---
+        // Recreate the moon phase object with the new latitude
+        this.moonPhase = new MoonPhase(latitude);
+        this.cacheDate = null;   // Force phase recalculation on next draw
     }
     
     updatePhase(timeData) {
@@ -258,49 +263,51 @@ class MoonRenderer {
             this.cacheDate = timeData.dateKey;
         }
     }
-    
+
     draw(ctx) {
         if (!this.cachedPhase) return;
-        
-        const pct = this.cachedPhase.illumination;
-        const lat = this.latitude;
-        
+
+        const phaseName = this.cachedPhase.phaseName;
+        const illumination = this.cachedPhase.illumination;
+        const isWaxing = phaseName.includes("Waxing") || phaseName === "First Quarter";
+        const useBottomSemicircle = !isWaxing && phaseName !== "New Moon" && phaseName !== "Full Moon";
+
         ctx.save();
         ctx.translate(this.cx, this.cy);
         
-        // Apply parallactic rotation based on latitude (same as our example)
-        let rotation = -(lat * Math.PI / 180); // - for canvas, it's stupid idea for degrees
+        // Parallactic rotation based on latitude
+        let rotation = -(this.latitude * Math.PI / 180);
         ctx.rotate(rotation);
         
-        // Draw subtle glow behind the moon
+        // Glow
         ctx.shadowBlur = this.config.moonGlowBlur;
         ctx.shadowColor = `rgba(255, 255, 240, ${this.config.moonGlowOpacity})`;
         
-        // Draw dark base (unlit portion)
+        // 1. Dark full moon base
         ctx.beginPath();
         ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
         ctx.fillStyle = this.config.moonDarkColor;
         ctx.fill();
         
-        // Reset shadow for the lit portion
         ctx.shadowBlur = 0;
         
-        // Draw light base - standard "Waxing" starts with bottom lit (horizontal smile)
+        // 2. Light semicircle (top for waxing, bottom for waning)
+        let startAngle = useBottomSemicircle ? Math.PI : 0;
+        let endAngle = useBottomSemicircle ? 2 * Math.PI : Math.PI;
         ctx.beginPath();
-        ctx.arc(0, 0, this.radius, 0, Math.PI, false);
+        ctx.arc(0, 0, this.radius, startAngle, endAngle, false);
         ctx.fillStyle = this.config.moonLightColor;
         ctx.fill();
         
-        // Draw variable ellipse (illumination mask)
-        let wFactor = (pct / 50) - 1;
+        // 3. Ellipse mask (exactly as in original)
+        let wFactor = (illumination / 50) - 1;
         let ellipseHeight = Math.abs(this.radius * wFactor);
-        
         ctx.beginPath();
         ctx.ellipse(0, 0, this.radius, ellipseHeight, 0, 0, Math.PI * 2);
-        ctx.fillStyle = pct < 50 ? this.config.moonDarkColor : this.config.moonLightColor;
+        ctx.fillStyle = illumination < 50 ? this.config.moonDarkColor : this.config.moonLightColor;
         ctx.fill();
         
-        // Draw subtle border around the moon
+        // Border
         ctx.beginPath();
         ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
         ctx.strokeStyle = this.config.moonBorderColor;
@@ -941,7 +948,7 @@ class ClockApp {
         
         // Update moon phase using timeData
         if (this.moonRenderer) {
-            this.moonRenderer.updatePhase(timeData);
+            this.moonRenderer.updatePhase(timeData);            
             if (this.moonRenderer.cachedPhase) {
                 this.moonDisplay.update(this.moonRenderer.cachedPhase);
             }

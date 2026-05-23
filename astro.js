@@ -232,11 +232,12 @@ class SolarDay {
 
 // ========== MOONPHASE ==========
 class MoonPhase {
-    constructor() {
+    constructor(latitude = 50.8) {
         // Local timezone equivalent of the J2000 Epoch New Moon baseline
         // Mean New Moon near J2000: January 6, 2000 at 18:14 
         this.epochMeanNewMoon = new Date(2000, 0, 6, 18, 14, 0).getTime();
         this.synodicMonth = 29.530588853; // Precise mean synodic month
+        if (latitude < 0) { this.hemisphere = "southern"; } else { this.hemisphere = "northern"; }
     }
 
     /**
@@ -279,12 +280,15 @@ class MoonPhase {
             illumination: Number(illumination.toFixed(2)),
             daysSinceNew: Number(daysSinceNew.toFixed(4)),
             daysUntilNext: Number(daysUntilNext.toFixed(4)),
-            symbol: this._getSymbol(phaseName)
+            symbol: this._getSymbol(phaseName, this.hemisphere )
         };
     }
 
-    _getSymbol(phaseName) {
-        const symbols = {
+    _getSymbol(phaseName, hemisphere) {
+        // Hemisphere strings are set in constructor:
+        // latitude < 0  → "northern"
+        // latitude >= 0 → "southern"
+        const northernSymbols = {
             "New Moon": "🌑",
             "Waxing Crescent": "🌒",
             "First Quarter": "🌓",
@@ -294,7 +298,23 @@ class MoonPhase {
             "Last Quarter": "🌗",
             "Waning Crescent": "🌘"
         };
-        return symbols[phaseName] || "🌑";
+        
+        const southernSymbols = {
+            "New Moon": "🌑",
+            "Waxing Crescent": "🌘",
+            "First Quarter": "🌗",
+            "Waxing Gibbous": "🌖",
+            "Full Moon": "🌕",
+            "Waning Gibbous": "🌔",
+            "Last Quarter": "🌓",
+            "Waning Crescent": "🌒"
+        };
+        
+        if (hemisphere === "northern") {
+            return northernSymbols[phaseName] || "🌑";
+        } else {
+            return southernSymbols[phaseName] || "🌑";
+        }
     }
 }
 
