@@ -269,7 +269,7 @@ class MoonRenderer {
         ctx.translate(this.cx, this.cy);
         
         // Apply parallactic rotation based on latitude (same as our example)
-        let rotation = (lat * Math.PI / 180);
+        let rotation = -(lat * Math.PI / 180); // - for canvas, it's stupid idea for degrees
         ctx.rotate(rotation);
         
         // Draw subtle glow behind the moon

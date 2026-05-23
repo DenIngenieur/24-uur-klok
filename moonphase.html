@@ -52,7 +52,7 @@
             // 1. CALCULATE TILT (PARALLACTIC ANGLE APPROXIMATION)
             // At 0 lat, it's horizontal. At 90 lat, it's vertical.
             // We flip the rotation for negative latitudes to account for looking North.
-            let rotation = (lat * Math.PI / 180);
+            let rotation = -(lat * Math.PI / 180); // - for canvas, it's stupid idea for degrees
             ctx.rotate(rotation);
 
             // 2. DRAW DARK BASE
