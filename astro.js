@@ -18,6 +18,17 @@
  * Phase indexing corrected: primary phases hold a precise 1.5% threshold.
  */
 
+// ========== CONSTANTS ==========
+const JD_UNIX_EPOCH = 2440587.5;          // Julian Date of Unix epoch (1970-01-01)
+const J2000 = 2451545.0;                  // Julian Date of J2000.0
+const MILLIS_PER_DAY = 86400000;
+const SUNRISE_DEPRESSION = 0.833;         // Standard sunrise/sunset: Sun's upper limb touches horizon
+const TWILIGHT_DEPRESSIONS = {
+    civil: 6,
+    nautical: 12,
+    astronomical: 18
+};
+
 // ========== ANGLE UTILITIES ==========
 const Angle = {
     degToRad: (deg) => deg * Math.PI / 180,
@@ -31,7 +42,7 @@ class JulianDate {
     constructor(input) {
         if (input instanceof Date) {
             const millis = input.getTime();
-            this.jd = millis / 86400000 + 2440587.5;
+            this.jd = millis / MILLIS_PER_DAY + JD_UNIX_EPOCH;
         } else if (typeof input === 'number') {
             this.jd = input;
         } else {
@@ -40,11 +51,11 @@ class JulianDate {
     }
 
     toDate() {
-        const millis = (this.jd - 2440587.5) * 86400000;
+        const millis = (this.jd - JD_UNIX_EPOCH) * MILLIS_PER_DAY;
         return new Date(millis);
     }
 
-    daysSinceJ2000() { return this.jd - 2451545.0; }
+    daysSinceJ2000() { return this.jd - J2000; }
     julianCenturies() { return this.daysSinceJ2000() / 36525.0; }
 
     sunMeanAnomaly() {
@@ -151,28 +162,78 @@ class SolarDay {
         this.lat = lat;
         this.lon = lon;
         this.date = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        
+        // Precompute all values that do NOT depend on depression angle
+        this._precomputeCache();
+        
+        // Compute all twilight events using the cached data
         this._compute();
     }
 
-    _compute() {
+    /**
+     * Precompute astronomical values that are date/location dependent but
+     * independent of the depression angle (e.g., Sun's declination, RA, GMST).
+     * This avoids redundant calculations for each twilight type.
+     */
+    _precomputeCache() {
+        // Julian date of solar noon UTC on the target date
         const noonUTC = Date.UTC(this.date.getFullYear(), this.date.getMonth(), this.date.getDate(), 12, 0, 0);
-        const jd = noonUTC / 86400000 + 2440587.5;
-        const getTimes = (depression) => this._sunriseSunset(jd, this.lat, this.lon, depression);
+        const jd = noonUTC / MILLIS_PER_DAY + JD_UNIX_EPOCH;
         
-        const riseSet = getTimes(0.833);
+        const n = jd - J2000;
+        const L = (280.46 + 0.9856474 * n) % 360;
+        const g = (357.528 + 0.9856003 * n) % 360;
+        const lambda = (L + 1.915 * Math.sin(g * Math.PI/180) + 0.020 * Math.sin(2 * g * Math.PI/180)) % 360;
+        const eps = 23.439 - 0.0000004 * n / 365.25;
+        
+        const decRad = Math.asin(Math.sin(eps * Math.PI/180) * Math.sin(lambda * Math.PI/180));
+        const dec = decRad * 180 / Math.PI;
+        
+        const raRad = Math.atan2(Math.cos(eps * Math.PI/180) * Math.sin(lambda * Math.PI/180),
+                                 Math.cos(lambda * Math.PI/180));
+        const ra = raRad * 180 / Math.PI;
+        
+        const gmst = (280.46061837 + 360.98564736629 * n) % 360;
+        const lst = (ra - this.lon - gmst + 360) % 360;
+        
+        // Precompute trigonometric constants for the latitude
+        const latRad = Angle.degToRad(this.lat);
+        const sinLat = Math.sin(latRad);
+        const cosLat = Math.cos(latRad);
+        
+        this._cache = {
+            jd, n, lst, dec, ra,
+            sinLat, cosLat,
+            sinDec: Math.sin(decRad),
+            cosDec: Math.cos(decRad)
+        };
+    }
+
+    _compute() {
+        const getTimes = (depression) => this._sunriseSunset(depression);
+        
+        // Sunrise/sunset (standard depression)
+        const riseSet = getTimes(SUNRISE_DEPRESSION);
         this.sunrise = riseSet.rise;
         this.sunset = riseSet.set;
         this.isPolarDay = riseSet.isPolarDay;
         this.isPolarNight = riseSet.isPolarNight;
         
-        for (const [name, angle] of [['civil', 6], ['nautical', 12], ['astronomical', 18]]) {
+        // Twilight events
+        const twilightTypes = [
+            { name: 'civil', angle: TWILIGHT_DEPRESSIONS.civil },
+            { name: 'nautical', angle: TWILIGHT_DEPRESSIONS.nautical },
+            { name: 'astronomical', angle: TWILIGHT_DEPRESSIONS.astronomical }
+        ];
+        
+        for (const { name, angle } of twilightTypes) {
             const times = getTimes(angle);
             this[`${name}Dawn`] = times.rise;
             this[`${name}Dusk`] = times.set;
             this[`${name}TwilightMissing`] = (!times.rise && !times.set);
         }
         
-        // Solar noon and nadir
+        // Solar noon and nadir (if sunrise and sunset exist)
         if (this.sunrise && this.sunset) {
             const riseH = this.sunrise.getUTCHours() + this.sunrise.getUTCMinutes()/60 + this.sunrise.getUTCSeconds()/3600;
             const setH = this.sunset.getUTCHours() + this.sunset.getUTCMinutes()/60 + this.sunset.getUTCSeconds()/3600;
@@ -192,35 +253,50 @@ class SolarDay {
         }
     }
 
-    _sunriseSunset(jd, lat, lon, depression) {
-        const n = jd - 2451545.0;
-        const L = (280.46 + 0.9856474 * n) % 360;
-        const g = (357.528 + 0.9856003 * n) % 360;
-        const lambda = (L + 1.915 * Math.sin(g * Math.PI/180) + 0.020 * Math.sin(2 * g * Math.PI/180)) % 360;
-        const eps = 23.439 - 0.0000004 * n / 365.25;
-        const dec = Math.asin(Math.sin(eps * Math.PI/180) * Math.sin(lambda * Math.PI/180)) * 180 / Math.PI;
-        const ra = Math.atan2(Math.cos(eps * Math.PI/180) * Math.sin(lambda * Math.PI/180),
-                              Math.cos(lambda * Math.PI/180)) * 180 / Math.PI;
-        const cosH = (Math.sin((-depression) * Math.PI/180) - Math.sin(lat * Math.PI/180) * Math.sin(dec * Math.PI/180)) /
-                     (Math.cos(lat * Math.PI/180) * Math.cos(dec * Math.PI/180));
-        if (cosH > 1) return { rise: null, set: null, isPolarDay: false, isPolarNight: true };
-        if (cosH < -1) return { rise: null, set: null, isPolarDay: true, isPolarNight: false };
-        const H = Math.acos(cosH) * 180 / Math.PI;
-        const gmst = (280.46061837 + 360.98564736629 * n) % 360;
-        const lst = (ra - lon - gmst + 360) % 360;
+    /**
+     * Calculate rise/set times for a given depression angle (e.g., 0.833° for sunrise).
+     * Uses precomputed cache to avoid recalculating date/location dependent values.
+     * @param {number} depression - Solar depression angle in degrees (positive below horizon).
+     * @returns {object} { rise: Date, set: Date, isPolarDay: boolean, isPolarNight: boolean }
+     */
+    _sunriseSunset(depression) {
+        const { lst, sinLat, cosLat, sinDec, cosDec } = this._cache;
+        
+        // Cosine of the hour angle at the given depression
+        const cosH = (Math.sin(-depression * Math.PI/180) - sinLat * sinDec) / (cosLat * cosDec);
+        
+        // Polar night: Sun never rises (cosH > 1)
+        if (cosH > 1) {
+            return { rise: null, set: null, isPolarDay: false, isPolarNight: true };
+        }
+        // Polar day: Sun never sets (cosH < -1)
+        if (cosH < -1) {
+            return { rise: null, set: null, isPolarDay: true, isPolarNight: false };
+        }
+        
+        const H = Math.acos(cosH) * 180 / Math.PI;  // Hour angle in degrees
+        
+        // Rise and set times in hours (local sidereal time offset)
         let rise = (lst - H) / 15;
         let set  = (lst + H) / 15;
+        
+        // Normalize to [0, 24)
         if (rise < 0) rise += 24;
         if (set >= 24) set -= 24;
-        const dayNoon = Math.floor(jd);
+        
+        const dayNoon = Math.floor(this._cache.jd);
         let riseJD = dayNoon + rise / 24;
         let setJD  = dayNoon + set  / 24;
-        if (riseJD < jd - 0.5) riseJD += 1;
-        if (riseJD > jd + 0.5) riseJD -= 1;
-        if (setJD  < jd - 0.5) setJD  += 1;
-        if (setJD  > jd + 0.5) setJD  -= 1;
-        const riseMs = (riseJD - 2440587.5) * 86400000;
-        const setMs  = (setJD  - 2440587.5) * 86400000;
+        
+        // Adjust to the correct day (could be previous or next)
+        if (riseJD < this._cache.jd - 0.5) riseJD += 1;
+        if (riseJD > this._cache.jd + 0.5) riseJD -= 1;
+        if (setJD  < this._cache.jd - 0.5) setJD  += 1;
+        if (setJD  > this._cache.jd + 0.5) setJD  -= 1;
+        
+        const riseMs = (riseJD - JD_UNIX_EPOCH) * MILLIS_PER_DAY;
+        const setMs  = (setJD  - JD_UNIX_EPOCH) * MILLIS_PER_DAY;
+        
         return {
             rise: new Date(riseMs),
             set: new Date(setMs),
@@ -280,7 +356,7 @@ class MoonPhase {
             illumination: Number(illumination.toFixed(2)),
             daysSinceNew: Number(daysSinceNew.toFixed(4)),
             daysUntilNext: Number(daysUntilNext.toFixed(4)),
-            symbol: this._getSymbol(phaseName, this.hemisphere )
+            symbol: this._getSymbol(phaseName, this.hemisphere)
         };
     }
 

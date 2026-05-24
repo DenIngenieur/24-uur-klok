@@ -106,7 +106,9 @@ const CONFIG = {
 };
 
 // ========== GLOBAL ANGLE UTILITIES ==========
-function degToRad(d) { return d * Math.PI / 180; }
+// Re-export from astro.js's Angle object (no duplication)
+// Angle is defined globally by astro.js. We use it directly.
+function degToRad(d) { return Angle.degToRad(d); }
 function hourToAngle(h) { return -(h * 15) + 90; }
 function minuteToAngle(m) { return -(m * 6) - 90; }
 function secondToAngle(s) { return -(s * 6) - 90; }
@@ -565,13 +567,13 @@ class GradientGenerator {
         this.cx = cx;
         this.cy = cy;
         this.radius = radius;
-        this._offscreenCanvas = null; // Force recreation on next generate
+        // No need to recreate canvas; just reuse existing one (size is fixed)
     }
     
     updateLocation(latitude, longitude) {
         this.latitude = latitude;
         this.longitude = longitude;
-        this._offscreenCanvas = null;
+        this._offscreenCanvas = null; // Force recreation on next generate
     }
     
     generate(timeData) {
@@ -997,13 +999,14 @@ class ClockApp {
     
     _startAnimation() {
         if (this.animationId) return;
+        // Simplified animation loop: no requestAnimationFrame + setTimeout, just setTimeout
         const loop = () => {
             if (!this._isPageVisible) {
                 this.animationId = null;
                 return;
             }
             this._render();
-            this.animationId = setTimeout(() => requestAnimationFrame(loop), this.config.updateInterval);
+            this.animationId = setTimeout(loop, this.config.updateInterval);
         };
         loop();
     }

@@ -1,35 +1,35 @@
 /**
- * 24h COUNTERCLOCKWISE CLOCK – OOP with Smooth Twilight Gradient & Moon Phase
+ * 24u TEGEN DE KLOK IN KLOK – OOP met vloeiende schemeringsovergang & Maanfase
  * 
- * Uses SolarDay and MoonPhase from astro.js / moonphase.js.
- * Moon phase is calculated once per day and displayed in the centre of the dial.
+ * Maakt gebruik van SolarDay en MoonPhase uit astro.js / moonphase.js.
+ * Maanfase wordt eenmaal per dag berekend en in het midden van de wijzerplaat weergegeven.
  * 
- * Dependencies: astro.js and moonphase.js must be loaded before this file.
+ * Afhankelijkheden: astro.js moet vóór dit bestand worden geladen.
  */
 
-// ========== CONFIGURATION ==========
+// ========== CONFIGURATIE ==========
 const CONFIG = {
     size: 500,
     showEveryNthHour: 1,
     showEveryNthMinute: 5,
     gradientMargin: 25,
     gradientOpacity: 0.85,
-    gradientSteps: 720, // 0.5° per step
-    locationPrecision: 2, // decimal places for location cache key
+    gradientSteps: 720, // 0.5° per stap
+    locationPrecision: 2, // decimalen voor locatie-cache-sleutel
     
     hourTrackerEnabled: true,
     hourTrackerRadius: 5,
     hourTrackerGlow: true,
     
-    // Moon settings
-    moonRadiusRatio: 0.33,      // 1/3 of clock radius
+    // Maan instellingen
+    moonRadiusRatio: 0.33,      // 1/3 van de klokradius
     moonGlowBlur: 6,
     moonGlowOpacity: 0.15,
     moonDarkColor: "#1a1d2e",
     moonLightColor: "#fff8e0",
     moonBorderColor: "rgba(255,255,240,0.3)",
 
-    // Translations
+    // Vertalingen (NL actief, EN als commentaar)
     moonPhaseNames: {
         "New Moon": "Nieuwe Maan",
         // "New Moon": "New Moon",
@@ -48,7 +48,7 @@ const CONFIG = {
         "Waning Crescent": "Afnemende Halve Maan"
         // "Waning Crescent": "Waning Crescent"
     },
-    // translation location-related messages
+    // locatie-gerelateerde berichten
     location: {
         geolocationNotSupported: "🌐 Geolocatie wordt niet ondersteund – standaardwaarde 50.81°N, 3.11°E gebruikt",
         // geolocationNotSupported: "🌐 Geolocation not supported – using fallback 50.81°N, 3.11°E",
@@ -69,7 +69,7 @@ const CONFIG = {
         format: "🌞 {hemisphere} halfrond | {latitude}° {longitude}°"
         // format: "🌞 {hemisphere} hemisphere | {latitude}° {longitude}°"
     },
-    // labels for feedback. Change these value to translate the UI label.
+    // labels voor feedback. Wijzig deze waarden om de UI-tekst te vertalen.
     labels: {
         day: "Dag",
         // day: "Day",
@@ -77,7 +77,7 @@ const CONFIG = {
         // latitude: "Latitude"
     },
 
-    // Colours to choose :-)
+    // Kleuren om uit te kiezen :-)
     colors: {
         background: "#0a0e1a",
         dialFace: "#111625",
@@ -90,7 +90,7 @@ const CONFIG = {
         secondHand: "#ff4d6d",
         tickMajor: "#ffffff",
         tickMinor: "#5b6e8c",
-        // Twilight anchor colors (HSL values) - more natural sky colors
+        // Schemering ankerkleuren (HSL-waarden) - meer natuurlijke hemelkleuren
         deepNight: { h: 235, s: 70, l: 8 },
         astronomical: { h: 240, s: 55, l: 18 },
         nautical: { h: 250, s: 40, l: 30 },
@@ -105,8 +105,10 @@ const CONFIG = {
     updateInterval: 250,
 };
 
-// ========== GLOBAL ANGLE UTILITIES ==========
-function degToRad(d) { return d * Math.PI / 180; }
+// ========== GLOBALE HOEK-UTILITIES ==========
+// Hergebruik van astro.js's Angle-object (geen duplicatie)
+// Angle is globaal gedefinieerd door astro.js. We gebruiken het direct.
+function degToRad(d) { return Angle.degToRad(d); }
 function hourToAngle(h) { return -(h * 15) + 90; }
 function minuteToAngle(m) { return -(m * 6) - 90; }
 function secondToAngle(s) { return -(s * 6) - 90; }
@@ -116,7 +118,7 @@ function getPosition(angleDeg, radius, cx, cy) {
     return { x: cx + radius * Math.cos(rad), y: cy + radius * Math.sin(rad) };
 }
 
-// ========== COLOR UTILITIES ==========
+// ========== KLEUR-UTILITIES ==========
 function hslToString(h, s, l, alpha = CONFIG.gradientOpacity) {
     return `hsla(${h}, ${s}%, ${l}%, ${alpha})`;
 }
@@ -135,10 +137,10 @@ function lerpHSL(color1, color2, t) {
     };
 }
 
-// ========== TIME SOURCE ==========
+// ========== TIJDSBRON ==========
 class TimeSource {
     constructor() {
-        this.dayOfYearOverride = null;  // null = use real today
+        this.dayOfYearOverride = null;  // null = gebruik echte vandaag
     }
     
     getCurrentTime() {
@@ -168,7 +170,7 @@ class TimeSource {
     }
 }
 
-// ========== HOLOCENE TIMESTAMP ==========
+// ========== HOLOCENE TIJDSTEMPEL ==========
 class HoloceneTimestamp {
     constructor() {
         this.element = document.getElementById('timestamp');
@@ -176,7 +178,7 @@ class HoloceneTimestamp {
     }
     update(timeData) {
         if (!this.element) return;
-        // Only update when seconds change
+        // Alleen bijwerken als seconden veranderen
         if (timeData.seconds === this.lastSecond) return;
         this.lastSecond = timeData.seconds;
         
@@ -190,7 +192,7 @@ class HoloceneTimestamp {
     }
 }
 
-// ========== GEOLOCATION HANDLER ==========
+// ========== GEOLOCATIE AFHANDELAAR ==========
 class GeolocationHandler {
     constructor() {
         this.latitude = 50.80724821763106;
@@ -232,7 +234,7 @@ class GeolocationHandler {
     }
 }
 
-// ========== MOON RENDERER ==========
+// ========== MAAN RENDERDER ==========
 class MoonRenderer {
     constructor(config, cx, cy, radius, latitude) {
         this.config = config;
@@ -240,7 +242,7 @@ class MoonRenderer {
         this.cy = cy;
         this.radius = radius;
         this.latitude = latitude;
-        this.moonPhase = new MoonPhase(latitude); // added latitude for moon icons
+        this.moonPhase = new MoonPhase(latitude); // latitude toegevoegd voor maaniconen
         this.cachedPhase = null;
         this.cacheDate = null;
     }
@@ -251,10 +253,10 @@ class MoonRenderer {
         this.radius = radius;
         this.latitude = latitude;
         
-        // --- ADD THIS ---
-        // Recreate the moon phase object with the new latitude
+        // --- DIT TOEVOEGEN ---
+        // Maanfase-object opnieuw aanmaken met de nieuwe latitude
         this.moonPhase = new MoonPhase(latitude);
-        this.cacheDate = null;   // Force phase recalculation on next draw
+        this.cacheDate = null;   // Forceer herberekening van de fase bij volgende tekening
     }
     
     updatePhase(timeData) {
@@ -275,15 +277,15 @@ class MoonRenderer {
         ctx.save();
         ctx.translate(this.cx, this.cy);
         
-        // Parallactic rotation based on latitude
+        // Parallactische rotatie op basis van breedtegraad
         let rotation = -(this.latitude * Math.PI / 180);
         ctx.rotate(rotation);
         
-        // Glow
+        // Gloed
         ctx.shadowBlur = this.config.moonGlowBlur;
         ctx.shadowColor = `rgba(255, 255, 240, ${this.config.moonGlowOpacity})`;
         
-        // 1. Dark full moon base
+        // 1. Donkere volle maan basis
         ctx.beginPath();
         ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
         ctx.fillStyle = this.config.moonDarkColor;
@@ -291,7 +293,7 @@ class MoonRenderer {
         
         ctx.shadowBlur = 0;
         
-        // 2. Light semicircle (top for waxing, bottom for waning)
+        // 2. Lichte halfcirkel (boven voor wassend, onder voor afnemend)
         let startAngle = useBottomSemicircle ? Math.PI : 0;
         let endAngle = useBottomSemicircle ? 2 * Math.PI : Math.PI;
         ctx.beginPath();
@@ -299,7 +301,7 @@ class MoonRenderer {
         ctx.fillStyle = this.config.moonLightColor;
         ctx.fill();
         
-        // 3. Ellipse mask (exactly as in original)
+        // 3. Ellips masker (exact zoals in origineel)
         let wFactor = (illumination / 50) - 1;
         let ellipseHeight = Math.abs(this.radius * wFactor);
         ctx.beginPath();
@@ -307,7 +309,7 @@ class MoonRenderer {
         ctx.fillStyle = illumination < 50 ? this.config.moonDarkColor : this.config.moonLightColor;
         ctx.fill();
         
-        // Border
+        // Rand
         ctx.beginPath();
         ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
         ctx.strokeStyle = this.config.moonBorderColor;
@@ -318,25 +320,25 @@ class MoonRenderer {
     }
 }
 
-// ========== MOON PHASE DISPLAY ==========
+// ========== MAANFASE WEERGAVE ==========
 class MoonPhaseDisplay {
     constructor() {
         this.element = document.getElementById('moonPhase');
-        this.lastDisplay = null;  // changed from lastDisplayedPhase
+        this.lastDisplay = null;
     }
     update(phaseData) {
         if (!this.element || !phaseData) return;
         const percent = Math.round(phaseData.illumination);
         //const displayString = `${phaseData.symbol} ${phaseData.phaseName} (${percent}%)`;
         const displayString = `${phaseData.symbol} ${CONFIG.moonPhaseNames[phaseData.phaseName]} (${percent}%)`;
-        // Only update DOM if phase actually changed
+        // Alleen DOM bijwerken als de fase daadwerkelijk is veranderd
         if (this.lastDisplay === displayString) return;
         this.lastDisplay = displayString;
         this.element.textContent = displayString;
     }
 }
 
-// ========== CLOCK DIAL ==========
+// ========== KLOKWIJZERPLAAT ==========
 class ClockDial {
     constructor(ctx, cx, cy, radius, config) {
         this.ctx = ctx;
@@ -344,7 +346,7 @@ class ClockDial {
         this.cy = cy;
         this.radius = radius;
         this.config = config;
-        // Pre-calculate hour and half-hour angles
+        // Voorbereken uur- en halfuurhoeken
         this._hourAngles = [];
         this._halfHourAngles = [];
         for (let h = 0; h < 24; h++) {
@@ -373,7 +375,7 @@ class ClockDial {
         
         ctx.save();
         
-        // Draw hour ticks
+        // Uurstrepen
         for (let h = 0; h < 24; h++) {
             const angle = this._hourAngles[h];
             const p1 = getPosition(angle, start, this.cx, this.cy);
@@ -386,7 +388,7 @@ class ClockDial {
             ctx.stroke();
         }
         
-        // Draw half-hour ticks
+        // Halfuurstrepen
         const minorStart = start + 3;
         const minorEnd = end - 2;
         for (let h = 0; h < 24; h++) {
@@ -471,7 +473,7 @@ class ClockDial {
     }
 }
 
-// ========== CLOCK HANDS ==========
+// ========== KLOKWIJZERS ==========
 class ClockHands {
     constructor(ctx, cx, cy, maxRadius, config) {
         this.ctx = ctx;
@@ -512,7 +514,7 @@ class ClockHands {
     }
 }
 
-// ========== HOUR TRACKER DOT ==========
+// ========== UUR VOLGSTIP ==========
 class HourTracker {
     constructor(ctx, cx, cy, maxRadius, config) {
         this.ctx = ctx;
@@ -548,7 +550,7 @@ class HourTracker {
     }
 }
 
-// ========== GRADIENT GENERATOR ==========
+// ========== VERLOOP GENERATOR ==========
 class GradientGenerator {
     constructor(config, cx, cy, radius, latitude, longitude) {
         this.config = config;
@@ -565,13 +567,13 @@ class GradientGenerator {
         this.cx = cx;
         this.cy = cy;
         this.radius = radius;
-        this._offscreenCanvas = null; // Force recreation on next generate
+        // Geen noodzaak om canvas opnieuw aan te maken; gewoon hergebruiken (grootte is vast)
     }
     
     updateLocation(latitude, longitude) {
         this.latitude = latitude;
         this.longitude = longitude;
-        this._offscreenCanvas = null;
+        this._offscreenCanvas = null; // Forceer hercreatie bij volgende generatie
     }
     
     generate(timeData) {
@@ -603,30 +605,29 @@ class GradientGenerator {
         const noon = getAngle(solar.solarNoon);
         const nadir = getAngle(solar.nadir);  
         
-        // --- Determine background colour from sun's altitude at nadir ---
+        // --- Bepaal achtergrondkleur op basis van zonhoogte bij nadir ---
         const c = this.config.colors;
-        let nightColor = c.deepNight;  // default: full darkness
+        let nightColor = c.deepNight;  // standaard: volledige duisternis
         
         if (solar.nadir) {
-            // Compute sun's altitude at nadir using SunPosition
+            // Bereken zonhoogte bij nadir met SunPosition
             const nadirJD = new JulianDate(solar.nadir);
             const nadirPos = new SunPosition(nadirJD, this.latitude, this.longitude);
             const nadirAlt = nadirPos.altitude();
             
-            // Map altitude to the deepest twilight colour
-            // Twilight boundaries: civil -6°, nautical -12°, astronomical -18°
+            // Grenzen van de schemering: civil -6°, nautical -12°, astronomical -18°
             if (nadirAlt > -6) {
-                nightColor = c.civil;          // sun never leaves civil twilight
+                nightColor = c.civil;          // zon verlaat nooit de civiele schemering
             } else if (nadirAlt > -12) {
-                nightColor = c.nautical;       // deepest is nautical twilight
+                nightColor = c.nautical;       // diepste is nautische schemering
             } else if (nadirAlt > -18) {
-                nightColor = c.astronomical;   // deepest is astronomical twilight
+                nightColor = c.astronomical;   // diepste is astronomische schemering
             } else {
-                nightColor = c.deepNight;      // full astronomical darkness
+                nightColor = c.deepNight;      // volledige astronomische duisternis
             }
         }
         
-        // --- Build arcs ---
+        // --- Bogen opbouwen ---
         const arcs = [];
         
         if (noon !== null && sunset !== null)
@@ -638,9 +639,7 @@ class GradientGenerator {
         if (naupDusk !== null && astroDusk !== null)
             arcs.push({ start: naupDusk, end: astroDusk, startColor: c.nautical, endColor: c.astronomical });
         
-        // Night section: from the deepest dusk to the deepest dawn
-        // If both astro dusk and astro dawn exist, we have two arcs (dusk→nadir, nadir→dawn)
-        // If one or both are missing, we connect whatever is available to nadir
+        // Nachtgedeelte: van de diepste schemering tot de diepste dageraad
         if (astroDusk !== null && astroDawn !== null) {
             arcs.push({ start: astroDusk, end: nadir, startColor: c.astronomical, endColor: nightColor });
             arcs.push({ start: nadir, end: astroDawn, startColor: nightColor, endColor: c.astronomical });
@@ -664,7 +663,7 @@ class GradientGenerator {
         if (sunrise !== null && noon !== null)
             arcs.push({ start: sunrise, end: noon, startColor: c.sunrise, endColor: c.solarNoon });
 
-        // --- Draw ---
+        // --- Tekenen ---
         if (!this._offscreenCanvas) {
             this._offscreenCanvas = document.createElement('canvas');
             this._offscreenCanvas.width = this.config.size;
@@ -674,18 +673,18 @@ class GradientGenerator {
         const offCtx = off.getContext('2d');
         offCtx.clearRect(0, 0, off.width, off.height);
         
-        // Fill background with night colour
+        // Achtergrond vullen met nachtkleur
         offCtx.beginPath();
         offCtx.arc(this.cx, this.cy, this.radius, 0, 2*Math.PI);
         offCtx.fillStyle = hslToString(nightColor.h, nightColor.s, nightColor.l);
         offCtx.fill();
         
-        // Draw each arc
+        // Elke boog tekenen
         for (const arc of arcs) {
             let start = arc.start;
             let end = arc.end;
             
-            // need this to prevent wrap around of colours the wrong way
+            // nodig om omslag van kleuren in de verkeerde richting te voorkomen
             if (start < end) start += 360;
             
             const totalAngle = Math.abs(end - start);
@@ -730,7 +729,7 @@ class GradientGenerator {
     }
 }
 
-// ========== MAIN CLOCK APPLICATION ==========
+// ========== HOOFD KLOKTOEPASSING ==========
 class ClockApp {
     constructor(canvas, config) {
         this.canvas = canvas;
@@ -765,7 +764,7 @@ class ClockApp {
         this._resize();
         window.addEventListener('resize', () => this._resize());
         
-        // Handle page visibility for animation cleanup
+        // Pagina zichtbaarheid afhandelen voor opschonen animatie
         document.addEventListener('visibilitychange', () => {
             this._isPageVisible = !document.hidden;
             if (this._isPageVisible) {
@@ -785,7 +784,7 @@ class ClockApp {
         this.geolocation.init();
         this._startAnimation();
 
-        // --- Day of year slider ---
+        // --- Dag van het jaar schuifregelaar ---
         const daySlider = document.getElementById('daySlider');
         const dayLabel = document.getElementById('dayLabel');
         const dayReset = document.getElementById('dayReset');
@@ -798,21 +797,21 @@ class ClockApp {
                 
                 daySlider.max = maxDay;
                 
-                // Only update value if we're in "today" mode
+                // Alleen waarde bijwerken als we in de "vandaag"-modus zijn
                 if (this.timeSource.dayOfYearOverride === null) {
                     daySlider.value = todayDay;
                     dayLabel.textContent = `${CONFIG.labels.day}: ${todayDay}`;
                 }
             };
             
-            // Set initial range
+            // Initiële bereik instellen
             updateDaySliderRange();
             
             daySlider.addEventListener('input', () => {
                 const dayOfYear = parseInt(daySlider.value);
                 this.timeSource.dayOfYearOverride = dayOfYear;
                 dayLabel.textContent = `${CONFIG.labels.day}: ${dayOfYear}`;
-                // Force gradient/moon regeneration
+                // Forceer verloop/maan regeneratie
                 this.gradientCache = null;
                 this.cacheKey = null;
                 if (this.moonRenderer) {
@@ -835,7 +834,7 @@ class ClockApp {
     }
     
     _resize() {
-        // Temporarily remove inline width to let container expand naturally
+        // Inline breedte tijdelijk verwijderen zodat container natuurlijk kan uitzetten
         this.canvas.style.width = '';
         this.canvas.style.height = '';
         
@@ -852,7 +851,7 @@ class ClockApp {
         this.gradientRadius = this.clockRadius - this.config.gradientMargin;
         this.moonRadius = this.clockRadius * this.config.moonRadiusRatio;
         
-        // Update existing objects instead of recreating
+        // Bestaande objecten bijwerken in plaats van opnieuw aanmaken
         if (this.dial) {
             this.dial.updatePosition(this.centerX, this.centerY, this.clockRadius);
         } else {
@@ -907,7 +906,7 @@ class ClockApp {
                 this.geolocation.latitude
             );
         }
-        // Force phase update on location change
+        // Forceer fase-update bij locatiewijziging
         this.moonRenderer.cacheDate = null;
     }
     
@@ -923,30 +922,30 @@ class ClockApp {
     _render() {
         if (!this.ctx) return;
         
-        // Single time source for entire frame
+        // Enkele tijdsbron voor het hele frame
         const timeData = this.timeSource.getCurrentTime();
 
-        // Update day slider max if year changed (handles leap year transitions)
+        // Max dag van schuifregelaar bijwerken als jaar verandert (schrikkeljaar)
         const daySlider = document.getElementById('daySlider');
         const dayLabel = document.getElementById('dayLabel');
         if (daySlider) {
             const maxDay = this._isLeapYear(timeData.year) ? 366 : 365;
-            if (daySlider.max != maxDay) {  // loose equality to handle string/number
+            if (daySlider.max != maxDay) {
                 daySlider.max = maxDay;
             }
-            // If in "today" mode, keep slider synced with actual day
+            // Als in "vandaag"-modus, schuifregelaar synchroniseren met werkelijke dag
             if (this.timeSource.dayOfYearOverride === null) {
                 const todayDay = this._getDayOfYear(new Date());
                 if (daySlider.value != todayDay) {
                     daySlider.value = todayDay;
-                    if (dayLabel) dayLabel.textContent = `Day: ${todayDay}`;
+                    if (dayLabel) dayLabel.textContent = `Dag: ${todayDay}`;
                 }
             }
         }
         
         this.timestamp.update(timeData);
         
-        // Update moon phase using timeData
+        // Maanfase bijwerken met timeData
         if (this.moonRenderer) {
             this.moonRenderer.updatePhase(timeData);            
             if (this.moonRenderer.cachedPhase) {
@@ -958,7 +957,7 @@ class ClockApp {
         this.ctx.fillStyle = this.config.colors.background;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         
-        // Draw twilight gradient
+        // Schemeringsverloop tekenen
         this._updateGradientCache(timeData);
         if (this.gradientCache) {
             this.ctx.drawImage(this.gradientCache, 0, 0);
@@ -973,19 +972,19 @@ class ClockApp {
             this.ctx.fill();
         }
         
-        // Draw moon in the centre
+        // Maan in het midden tekenen
         if (this.moonRenderer) {
             this.moonRenderer.draw(this.ctx);
         }
         
-        // Draw dial markings on top of moon
+        // Wijzerplaatmarkeringen bovenop de maan tekenen
         this.dial.draw();
         
-        // Draw hands
+        // Wijzers tekenen
         this.hands.draw(timeData);
         this.tracker.draw(timeData.decimalHours);
         
-        // Draw centre cap
+        // Middelpuntkapje tekenen
         this.ctx.save();
         this.ctx.beginPath();
         this.ctx.arc(this.centerX, this.centerY, 4, 0, 2*Math.PI);
@@ -997,13 +996,14 @@ class ClockApp {
     
     _startAnimation() {
         if (this.animationId) return;
+        // Vereenvoudigde animatielus: geen requestAnimationFrame + setTimeout, alleen setTimeout
         const loop = () => {
             if (!this._isPageVisible) {
                 this.animationId = null;
                 return;
             }
             this._render();
-            this.animationId = setTimeout(() => requestAnimationFrame(loop), this.config.updateInterval);
+            this.animationId = setTimeout(loop, this.config.updateInterval);
         };
         loop();
     }
@@ -1032,37 +1032,37 @@ class ClockApp {
         }
         if (this.moonRenderer) {
             this.moonRenderer.updatePosition(this.centerX, this.centerY, this.moonRadius, lat);
-            this.moonRenderer.cacheDate = null;  // force moon reorientation
+            this.moonRenderer.cacheDate = null;  // forceer maan heroriëntatie
         }
         this._render();
     }
 }
 
-// ========== START APPLICATION ==========
+// ========== TOEPASSING STARTEN ==========
 window.addEventListener('load', () => {
     const canvas = document.getElementById('clockCanvas');
     if (!canvas) return;
     if (typeof SolarDay === 'undefined') {
         const status = document.getElementById('statusMessage');
-        if (status) status.textContent = "Error: astro.js not loaded.";
+        if (status) status.textContent = "Fout: astro.js niet geladen.";
         return;
     }
     if (typeof MoonPhase === 'undefined') {
         const status = document.getElementById('statusMessage');
-        if (status) status.textContent = "Error: astro.js not loaded.";
+        if (status) status.textContent = "Fout: astro.js niet geladen.";
         return;
     }
     
     const app = new ClockApp(canvas, CONFIG);
     window.clockApp = app;
     
-    // --- Latitude slider ---
+    // --- Breedtegraad schuifregelaar ---
     const latSlider = document.getElementById('latSlider');
     const latLabel = document.getElementById('latLabel');
     const latReset = document.getElementById('latReset');
     
     if (latSlider && latLabel && latReset) {
-        // Wait briefly for geolocation to resolve, then set initial slider value
+        // Even wachten tot geolocatie is opgelost, dan initiële schuifregelaarwaarde instellen
         const setInitialSlider = () => {
             const originalLat = app.geolocation.latitude;
             latSlider.value = originalLat;
@@ -1083,20 +1083,20 @@ window.addEventListener('load', () => {
         
         function updateSliderLabel(lat) {
             const abs = Math.abs(lat).toFixed(1);
-            const hemi = lat >= 0 ? 'N' : 'S';
+            const hemi = lat >= 0 ? 'N' : 'Z';
             latLabel.textContent = `${CONFIG.labels.latitude}: ${abs}°${hemi}`;
         }
         
-        // If geolocation hasn't resolved yet, wait for it
+        // Als geolocatie nog niet is opgelost, wachten
         if (app.geolocation.latitude !== undefined) {
             setInitialSlider();
         } else {
-            // Hook into the geolocation callback
+            // Inhaken op de geolocatie callback
             const originalCallback = app.geolocation.onLocationChange;
             app.geolocation.onLocationChange = (lat, lon) => {
                 if (originalCallback) originalCallback(lat, lon);
                 setInitialSlider();
-                // Restore original callback
+                // Originele callback herstellen
                 app.geolocation.onLocationChange = originalCallback;
             };
         }
