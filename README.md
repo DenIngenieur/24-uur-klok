@@ -8,6 +8,6 @@
     <img src="moonphase.png" alt="Moon Phase Visualiser" width="200" style="border-radius: 12px;">
   </a>
   <a href="https://deningenieur.github.io/24-uur-klok/sun.html">
-    <img src="sun.png" alt="Sun Calculator" width="200" style="border-radius: 12px;">
+    <img src="sun.png" alt="Sun Calculator" height="300" style="border-radius: 12px;">
   </a>
 </div>
