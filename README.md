@@ -2,12 +2,12 @@
 
 <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
   <a href="https://deningenieur.github.io/24-uur-klok/">
-    <img src="clock.png" alt="Holocene Clock" height="300" style="border-radius: 12px;">
+    <img src="clock.png" alt="Holocene Clock" width="200" style="border-radius: 12px;">
   </a>
   <a href="https://deningenieur.github.io/24-uur-klok/moonphase.html">
-    <img src="moonphase.png" alt="Moon Phase Visualiser" height="300" style="border-radius: 12px;">
+    <img src="moonphase.png" alt="Moon Phase Visualiser" width="200" style="border-radius: 12px;">
   </a>
   <a href="https://deningenieur.github.io/24-uur-klok/sun.html">
-    <img src="sun.png" alt="Sun Calculator" height="300" style="border-radius: 12px;">
+    <img src="sun.png" alt="Sun Calculator" width="200" style="border-radius: 12px;">
   </a>
 </div>
