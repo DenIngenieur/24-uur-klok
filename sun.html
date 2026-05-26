@@ -60,6 +60,18 @@
         }
         .location-btn:hover { background: #3e7a94; }
 
+
+        .geoStatus {
+            font-size: 0.8rem; 
+            margin-top: 0.5rem; 
+            color: #88aaff; 
+            background: #1e2a3a; 
+            padding: 4px 10px; 
+            border-radius: 8px; 
+            display: inline-block;
+        }
+
+
         /* --- Solar events table --- */
         .results {
             background: #111625;
@@ -149,13 +161,14 @@
             <input type="date" id="date" value="">
         </label>
         <label>Latitude (°)
-            <input type="number" id="lat" value="50.80732286938237" step="any">
+            <input type="text" id="lat" value="50.80732286938237" inputmode="decimal" pattern="-?\d+(\.\d+)?" title="Enter a number (e.g., 50.8073)">
         </label>
         <label>Longitude (°)
-            <input type="number" id="lon" value="3.1139205682442954" step="any">
+            <input type="text" id="lon" value="3.1139205682442954" inputmode="decimal" pattern="-?\d+(\.\d+)?" title="Enter a number (e.g., 3.1139)">
         </label>
         <button id="compute">Update</button>
         <button id="locateBtn" class="location-btn">📍 Use my location</button>
+        <div id="geoStatus" style=""></div>
     </div>
 
     <!-- ========== SOLAR EVENTS ========== -->
@@ -359,34 +372,40 @@
             setValue(els.noonHA,   sunNoon.hourAngle,       4, '°');
             setValue(els.noonGMST, sunNoon.gmst,            4, '°');
         }
-
+        
         // ========== GEOLOCATION ==========
+        const geoStatus = document.getElementById('geoStatus');
+
         function getLocationAndFill() {
             if (!navigator.geolocation) {
-                alert("Geolocation is not supported by your browser.");
+                geoStatus.textContent = "🌐 Geolocation not supported – using default.";
                 return;
             }
-            const locateBtn = document.getElementById('locateBtn');
-            const originalText = locateBtn.textContent;
-            locateBtn.textContent = "📍 Getting location...";
-            locateBtn.disabled = true;
+            const btn = document.getElementById('locateBtn');
+            const originalText = btn.textContent;
+            btn.textContent = "📍 Locating...";
+            btn.disabled = true;
+            geoStatus.textContent = "📍 Requesting location...";
+
             navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const lat = position.coords.latitude.toFixed(6);
-                    const lon = position.coords.longitude.toFixed(6);
+                (pos) => {
+                    const lat = pos.coords.latitude.toFixed(6);
+                    const lon = pos.coords.longitude.toFixed(6);
                     document.getElementById('lat').value = lat;
                     document.getElementById('lon').value = lon;
-                    computeAndDisplay();  // refresh with new coordinates
-                    locateBtn.textContent = originalText;
-                    locateBtn.disabled = false;
+                    computeAndDisplay();
+                    geoStatus.textContent = `✅ Location set to ${lat}°, ${lon}°`;
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                    setTimeout(() => geoStatus.textContent = "", 3000);
                 },
-                (error) => {
-                    console.warn("Geolocation error:", error.message);
-                    alert("Could not get your location. Please enter coordinates manually.");
-                    locateBtn.textContent = originalText;
-                    locateBtn.disabled = false;
-                },
-                { enableHighAccuracy: true, timeout: 10000 }
+                (err) => {
+                    geoStatus.textContent = "⚠️ Location denied or unavailable – using entered values.";
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                    setTimeout(() => geoStatus.textContent = "", 3000);
+                }
+                // No timeout, no enableHighAccuracy – exactly like clock.js
             );
         }
 
