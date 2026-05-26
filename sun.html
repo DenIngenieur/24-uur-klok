@@ -54,6 +54,11 @@
             padding: 0.45rem 1.2rem;
         }
         button:hover { background: #5a7e9c; }
+        .location-btn {
+            background: #2c5a6e;
+            margin-top: 0.8rem;
+        }
+        .location-btn:hover { background: #3e7a94; }
 
         /* --- Solar events table --- */
         .results {
@@ -150,6 +155,7 @@
             <input type="number" id="lon" value="3.1139205682442954" step="any">
         </label>
         <button id="compute">Update</button>
+        <button id="locateBtn" class="location-btn">📍 Use my location</button>
     </div>
 
     <!-- ========== SOLAR EVENTS ========== -->
@@ -354,14 +360,48 @@
             setValue(els.noonGMST, sunNoon.gmst,            4, '°');
         }
 
+        // ========== GEOLOCATION ==========
+        function getLocationAndFill() {
+            if (!navigator.geolocation) {
+                alert("Geolocation is not supported by your browser.");
+                return;
+            }
+            const locateBtn = document.getElementById('locateBtn');
+            const originalText = locateBtn.textContent;
+            locateBtn.textContent = "📍 Getting location...";
+            locateBtn.disabled = true;
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const lat = position.coords.latitude.toFixed(6);
+                    const lon = position.coords.longitude.toFixed(6);
+                    document.getElementById('lat').value = lat;
+                    document.getElementById('lon').value = lon;
+                    computeAndDisplay();  // refresh with new coordinates
+                    locateBtn.textContent = originalText;
+                    locateBtn.disabled = false;
+                },
+                (error) => {
+                    console.warn("Geolocation error:", error.message);
+                    alert("Could not get your location. Please enter coordinates manually.");
+                    locateBtn.textContent = originalText;
+                    locateBtn.disabled = false;
+                },
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+        }
+
+        // ========== INITIALISATION ==========
         document.getElementById('compute').addEventListener('click', computeAndDisplay);
+        document.getElementById('locateBtn').addEventListener('click', getLocationAndFill);
         
+        // Set today's date as default
         const today = new Date();
         const yyyy = today.getFullYear();
         const mm = String(today.getMonth() + 1).padStart(2, '0');
         const dd = String(today.getDate()).padStart(2, '0');
         document.getElementById('date').value = `${yyyy}-${mm}-${dd}`;
         
+        // Initial computation with the default/fallback coordinates
         computeAndDisplay();
     </script>
 </body>
